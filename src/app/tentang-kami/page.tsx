@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { QuickPortalBanner } from "@/components/public/QuickPortalBanner";
 import { Navbar } from "@/components/public/Navbar";
 import { Footer } from "@/components/public/Footer";
 import { CartDrawer } from "@/components/public/CartDrawer";
@@ -24,7 +23,6 @@ export default function TentangKamiPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FDFBF7]">
-      <QuickPortalBanner />
       <Navbar
         onOpenCart={() => setIsCartOpen(true)}
         onOpenSearch={() => {}}

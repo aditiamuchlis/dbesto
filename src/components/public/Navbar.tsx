@@ -16,7 +16,7 @@ interface NavbarProps {
 function NavbarContent({ onOpenCart, onOpenSearch, onOrderNow }: NavbarProps) {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { cart, currentOutlet } = useAppStore();
+  const { cart, currentOutlet, currentUser } = useAppStore();
 
   const totalCartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
@@ -81,7 +81,7 @@ function NavbarContent({ onOpenCart, onOpenSearch, onOrderNow }: NavbarProps) {
           </nav>
 
           {/* Right Header Actions */}
-          <div className="flex items-center space-x-3 sm:space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-3">
             {/* Search Button */}
             <button
               onClick={onOpenSearch}
@@ -105,10 +105,27 @@ function NavbarContent({ onOpenCart, onOpenSearch, onOrderNow }: NavbarProps) {
               )}
             </button>
 
+            {/* Portal Staf Button */}
+            <Link
+              href="/admin"
+              className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-zinc-200 text-xs font-semibold text-zinc-700 hover:text-[#D32323] hover:border-red-300 hover:bg-red-50/50 transition-all cursor-pointer shadow-2xs"
+              title="Portal Internal Staf & Dashboard Resto"
+            >
+              <UserCheck className="w-3.5 h-3.5 text-zinc-500" />
+              <span className="font-bold">
+                {currentUser ? currentUser.name.split(" ")[0] : "Portal Staf"}
+              </span>
+              {currentUser && (
+                <span className="text-[9px] bg-red-100 text-[#D32323] font-black px-1.5 py-0.5 rounded-full tracking-wider">
+                  {currentUser.role.replace("_", " ")}
+                </span>
+              )}
+            </Link>
+
             {/* CTA Pesan Sekarang */}
             <button
               onClick={onOrderNow || onOpenCart}
-              className="hidden sm:inline-flex items-center justify-center bg-[#D32323] hover:bg-[#B31818] text-white font-bold text-sm px-6 py-2.5 rounded-full shadow-md shadow-red-500/20 hover:shadow-red-500/30 transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+              className="hidden sm:inline-flex items-center justify-center bg-[#D32323] hover:bg-[#B31818] text-white font-bold text-sm px-5 py-2.5 rounded-full shadow-md shadow-red-500/20 hover:shadow-red-500/30 transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
             >
               Pesan Sekarang
             </button>
@@ -158,6 +175,19 @@ function NavbarContent({ onOpenCart, onOpenSearch, onOrderNow }: NavbarProps) {
             >
               <MapPin className="w-4 h-4 text-amber-500" />
               <span>Lokasi Cabang ({currentOutlet.name})</span>
+            </Link>
+            <Link
+              href="/admin"
+              onClick={() => setMobileMenuOpen(false)}
+              className="px-3 py-2.5 rounded-xl text-sm font-bold flex items-center justify-between text-zinc-800 bg-zinc-50 hover:bg-red-50 border border-zinc-200"
+            >
+              <div className="flex items-center gap-2">
+                <UserCheck className="w-4 h-4 text-[#D32323]" />
+                <span>Portal Staf & Kasir ({currentUser ? currentUser.name.split(" ")[0] : "Login"})</span>
+              </div>
+              <span className="text-[10px] bg-red-100 text-[#D32323] px-2 py-0.5 rounded-full font-extrabold uppercase">
+                {currentUser?.role || "PORTAL"}
+              </span>
             </Link>
             <div className="pt-2">
               <button

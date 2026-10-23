@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { QuickPortalBanner } from "@/components/public/QuickPortalBanner";
 import { Navbar } from "@/components/public/Navbar";
 import { HeroSection } from "@/components/public/HeroSection";
 import { FeatureBadges } from "@/components/public/FeatureBadges";
@@ -19,9 +18,6 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
-      {/* Ecosystem Switcher Banner */}
-      <QuickPortalBanner />
-
       {/* Main Navbar */}
       <Navbar
         onOpenCart={() => setIsCartOpen(true)}

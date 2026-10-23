@@ -17,21 +17,13 @@ export default function LoginPage() {
     e.preventDefault();
     const matched = users.find((u) => u.email.toLowerCase() === email.toLowerCase()) || users[0];
     switchUser(matched.id);
-    if (matched.role === "SUPER_ADMIN") {
-      router.push("/admin");
-    } else {
-      router.push("/resto/pos");
-    }
+    router.push("/admin");
   };
 
-  const handleQuickDemo = (role: string) => {
-    const user = users.find((u) => u.role === role) || users[0];
+  const handleQuickDemo = (userId: string) => {
+    const user = users.find((u) => u.id === userId) || users[0];
     switchUser(user.id);
-    if (user.role === "SUPER_ADMIN") {
-      router.push("/admin");
-    } else {
-      router.push("/resto/pos");
-    }
+    router.push("/admin");
   };
 
   return (
@@ -48,9 +40,9 @@ export default function LoginPage() {
               className="object-contain"
             />
           </div>
-          <h2 className="text-2xl font-black text-white tracking-tight">Portal Terpadu D&apos;Besto</h2>
+          <h2 className="text-2xl font-black text-white tracking-tight">Portal Internal D&apos;Besto</h2>
           <p className="text-xs text-zinc-400">
-            Masuk untuk mengakses Sistem POS Kasir, Operasional Cabang, atau HQ Central Hub.
+            Masuk untuk mengakses Dashboard Admin, Operasional POS Kasir, atau Manajemen Resto.
           </p>
         </div>
 
@@ -88,29 +80,58 @@ export default function LoginPage() {
             type="submit"
             className="w-full bg-[#D32323] hover:bg-[#B31818] text-white font-bold py-3.5 rounded-xl shadow-lg shadow-red-500/25 transition cursor-pointer"
           >
-            Masuk ke Sistem
+            Masuk ke Dashboard
           </button>
         </form>
 
-        {/* Demo Fast Login Buttons */}
-        <div className="pt-4 border-t border-zinc-800 space-y-2">
+        {/* Demo Fast Login Buttons for all 4 roles */}
+        <div className="pt-4 border-t border-zinc-800 space-y-2.5">
           <p className="text-[11px] font-bold text-zinc-400 text-center uppercase tracking-wider">
-            Atau Uji Coba Cepat (1-Click Demo Login):
+            1-Click Demo Login Sesuai Role:
           </p>
           <div className="grid grid-cols-2 gap-2 text-xs">
             <button
-              onClick={() => handleQuickDemo("SUPER_ADMIN")}
-              className="p-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
+              onClick={() => handleQuickDemo("usr-super-01")}
+              className="p-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 font-bold transition flex flex-col items-center justify-center gap-1 cursor-pointer text-center"
             >
-              <ShieldCheck className="w-4 h-4" />
-              <span>Super Admin HQ</span>
+              <div className="flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4" />
+                <span>Super Admin</span>
+              </div>
+              <span className="text-[10px] text-zinc-400 font-normal">HQ Central</span>
             </button>
+
             <button
-              onClick={() => handleQuickDemo("CASHIER")}
-              className="p-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
+              onClick={() => handleQuickDemo("usr-adm-mrg")}
+              className="p-2.5 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/30 font-bold transition flex flex-col items-center justify-center gap-1 cursor-pointer text-center"
             >
-              <ShoppingBag className="w-4 h-4" />
-              <span>Kasir Resto</span>
+              <div className="flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4" />
+                <span>Resto Admin</span>
+              </div>
+              <span className="text-[10px] text-zinc-400 font-normal">Manajer Cabang</span>
+            </button>
+
+            <button
+              onClick={() => handleQuickDemo("usr-kasir-mrg")}
+              className="p-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 font-bold transition flex flex-col items-center justify-center gap-1 cursor-pointer text-center"
+            >
+              <div className="flex items-center gap-1.5">
+                <ShoppingBag className="w-4 h-4" />
+                <span>Kasir Resto</span>
+              </div>
+              <span className="text-[10px] text-zinc-400 font-normal">Terminal POS</span>
+            </button>
+
+            <button
+              onClick={() => handleQuickDemo("usr-staf-mrg")}
+              className="p-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold transition flex flex-col items-center justify-center gap-1 cursor-pointer text-center"
+            >
+              <div className="flex items-center gap-1.5">
+                <UserCheck className="w-4 h-4" />
+                <span>Staff Karyawan</span>
+              </div>
+              <span className="text-[10px] text-zinc-400 font-normal">Dapur & Stok</span>
             </button>
           </div>
         </div>

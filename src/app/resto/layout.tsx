@@ -15,38 +15,66 @@ import {
   ArrowLeft,
   UserCheck,
   ShieldCheck,
+  CalendarCheck,
+  LayoutDashboard,
 } from "lucide-react";
 
 function RestoLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { currentOutlet, currentUser, shifts, switchOutlet, outlets } = useAppStore();
+  const { currentOutlet, currentUser, shifts, switchOutlet, switchUser, outlets, users } =
+    useAppStore();
 
   const activeShift = shifts.find(
     (s) => s.outletId === currentOutlet.id && s.status === "OPEN"
   );
 
-  const navItems = [
-    { label: "POS Kasir", href: "/resto/pos", icon: ShoppingBag },
-    { label: "Shift Kasir", href: "/resto/pos/shift", icon: Clock },
-    { label: "Riwayat Transaksi", href: "/resto/pos/riwayat", icon: BarChart3 },
-    { label: "Stock Opname", href: "/resto/stock-opname", icon: ClipboardList },
-    { label: "PO Bahan Baku", href: "/resto/po-bahan-baku", icon: Truck },
-    { label: "Absensi GPS", href: "/resto/absensi", icon: MapPin },
-    { label: "Laporan Harian", href: "/resto/laporan", icon: BarChart3 },
-  ];
+  // Filter navigation items strictly based on role
+  const getNavItems = () => {
+    if (currentUser.role === "CASHIER") {
+      return [
+        { label: "POS Kasir", href: "/resto/pos", icon: ShoppingBag },
+        { label: "Shift Kasir", href: "/resto/pos/shift", icon: Clock },
+        { label: "Riwayat Transaksi", href: "/resto/pos/riwayat", icon: BarChart3 },
+        { label: "Absensi GPS", href: "/resto/absensi", icon: MapPin },
+        { label: "Riwayat Presensi", href: "/resto/absensi/riwayat", icon: CalendarCheck },
+      ];
+    }
+
+    if (currentUser.role === "STAFF") {
+      return [
+        { label: "Absensi GPS", href: "/resto/absensi", icon: MapPin },
+        { label: "Riwayat Presensi", href: "/resto/absensi/riwayat", icon: CalendarCheck },
+        { label: "Stock Opname", href: "/resto/stock-opname", icon: ClipboardList },
+        { label: "Riwayat Opname", href: "/resto/stock-opname/riwayat", icon: ClipboardList },
+      ];
+    }
+
+    // SUPER_ADMIN and RESTO_ADMIN
+    return [
+      { label: "POS Kasir", href: "/resto/pos", icon: ShoppingBag },
+      { label: "Shift Kasir", href: "/resto/pos/shift", icon: Clock },
+      { label: "Riwayat Transaksi", href: "/resto/pos/riwayat", icon: BarChart3 },
+      { label: "Stock Opname", href: "/resto/stock-opname", icon: ClipboardList },
+      { label: "PO Bahan Baku", href: "/resto/po-bahan-baku", icon: Truck },
+      { label: "Absensi GPS", href: "/resto/absensi", icon: MapPin },
+      { label: "Laporan Harian", href: "/resto/laporan", icon: BarChart3 },
+    ];
+  };
+
+  const navItems = getNavItems();
 
   return (
     <div className="min-h-screen bg-zinc-100 flex flex-col font-sans">
       {/* Top Header */}
       <header className="bg-zinc-900 text-white px-4 py-3 border-b border-zinc-800 shadow-sm sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
+        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
             <Link
-              href="/"
-              className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white transition bg-zinc-800 hover:bg-zinc-700 px-3 py-1.5 rounded-lg"
+              href="/admin"
+              className="flex items-center gap-1.5 text-xs text-white font-bold bg-[#D32323] hover:bg-[#B31818] px-3 py-1.5 rounded-lg shadow-sm transition"
             >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Website D&apos;Besto</span>
+              <LayoutDashboard className="w-3.5 h-3.5" />
+              <span>← Dashboard Internal</span>
             </Link>
 
             <div className="flex items-center gap-2">
@@ -59,19 +87,19 @@ function RestoLayoutContent({ children }: { children: React.ReactNode }) {
                 />
               </div>
               <span className="text-zinc-600">|</span>
-              <span className="font-extrabold text-sm tracking-wide text-amber-400">
+              <span className="font-extrabold text-xs sm:text-sm tracking-wide text-amber-400 truncate">
                 PORTAL OPERASIONAL RESTO
               </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-3 text-xs">
+          <div className="flex flex-wrap items-center gap-2 text-xs">
             {/* Shift Badge */}
             <div
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-full font-bold ${
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full font-bold text-[11px] border ${
                 activeShift
-                  ? "bg-emerald-950 text-emerald-400 border border-emerald-800"
-                  : "bg-red-950 text-red-400 border border-red-800"
+                  ? "bg-emerald-950 text-emerald-400 border-emerald-800"
+                  : "bg-red-950 text-red-400 border-red-800"
               }`}
             >
               <span
@@ -79,7 +107,7 @@ function RestoLayoutContent({ children }: { children: React.ReactNode }) {
                   activeShift ? "bg-emerald-400 animate-pulse" : "bg-red-400"
                 }`}
               />
-              <span>{activeShift ? "Shift Aktif" : "Shift Tertutup"}</span>
+              <span className="hidden sm:inline">{activeShift ? "Shift Aktif" : "Shift Tutup"}</span>
             </div>
 
             {/* Current Outlet Selector */}
@@ -88,7 +116,7 @@ function RestoLayoutContent({ children }: { children: React.ReactNode }) {
               <select
                 value={currentOutlet.id}
                 onChange={(e) => switchOutlet(e.target.value)}
-                className="bg-transparent text-amber-300 font-semibold focus:outline-none cursor-pointer"
+                className="bg-transparent text-amber-300 font-semibold focus:outline-none cursor-pointer text-xs"
               >
                 {outlets.map((o) => (
                   <option key={o.id} value={o.id} className="bg-zinc-900 text-white">
@@ -98,27 +126,34 @@ function RestoLayoutContent({ children }: { children: React.ReactNode }) {
               </select>
             </div>
 
-            {/* User Info */}
-            <div className="flex items-center gap-1.5 text-zinc-300 bg-zinc-800 px-2.5 py-1 rounded-lg border border-zinc-700">
+            {/* Quick User / Role Switcher in Resto Portal */}
+            <div className="flex items-center gap-1.5 bg-zinc-800 px-2.5 py-1 rounded-lg border border-zinc-700">
               <UserCheck className="w-3.5 h-3.5 text-red-400" />
-              <span className="font-medium text-white">{currentUser.name}</span>
-              <span className="text-[10px] bg-red-600/30 text-red-300 px-1.5 py-0.2 rounded font-mono">
-                {currentUser.role}
-              </span>
+              <select
+                value={currentUser.id}
+                onChange={(e) => switchUser(e.target.value)}
+                className="bg-transparent text-white font-semibold focus:outline-none cursor-pointer text-xs"
+              >
+                {users.map((u) => (
+                  <option key={u.id} value={u.id} className="bg-zinc-900 text-white">
+                    {u.name} [{u.role}]
+                  </option>
+                ))}
+              </select>
             </div>
 
             <Link
-              href="/admin"
-              className="bg-amber-500 hover:bg-amber-600 text-zinc-950 font-bold px-2.5 py-1 rounded transition flex items-center gap-1"
+              href="/"
+              className="text-xs text-zinc-400 hover:text-white px-2.5 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 transition"
+              title="Ke Website D'Besto"
             >
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span>HQ Admin</span>
+              Web
             </Link>
           </div>
         </div>
       </header>
 
-      {/* Subnav Tabs */}
+      {/* Subnav Tabs (Role-Filtered) */}
       <nav className="bg-white border-b border-zinc-200 px-4 shadow-2xs overflow-x-auto scrollbar-none">
         <div className="max-w-7xl mx-auto flex items-center space-x-1 sm:space-x-2 py-2">
           {navItems.map((item) => {
@@ -150,7 +185,16 @@ function RestoLayoutContent({ children }: { children: React.ReactNode }) {
 
 export default function RestoLayout({ children }: { children: React.ReactNode }) {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-zinc-100 flex items-center justify-center p-8">{children}</div>}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-zinc-100 flex items-center justify-center p-8">
+          <div className="flex items-center gap-2 text-zinc-500 font-bold">
+            <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-ping" />
+            <span>Memuat Modul Resto...</span>
+          </div>
+        </div>
+      }
+    >
       <RestoLayoutContent>{children}</RestoLayoutContent>
     </Suspense>
   );
