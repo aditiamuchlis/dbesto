@@ -135,7 +135,7 @@ export default function AbsensiPage() {
           </div>
 
           <div className="relative w-44 h-44 rounded-full overflow-hidden border-4 border-dashed border-red-300 bg-zinc-100 flex items-center justify-center shadow-inner group">
-            <Image src={selfiePhoto} alt="Selfie Staf" fill className="object-cover" />
+            <Image src={selfiePhoto} alt="Selfie Staf" fill className="object-cover" unoptimized />
             <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
               <Camera className="w-8 h-8 text-white" />
             </div>
@@ -289,7 +289,7 @@ export default function AbsensiPage() {
                     <td className="p-3.5">
                       <div className="relative w-8 h-8 rounded-full overflow-hidden bg-zinc-200">
                         {att.inPhotoUrl && (
-                          <Image src={att.inPhotoUrl} alt={att.userName || "Staf"} fill className="object-cover" />
+                          <Image src={att.inPhotoUrl} alt={att.userName || "Staf"} fill className="object-cover" unoptimized />
                         )}
                       </div>
                     </td>

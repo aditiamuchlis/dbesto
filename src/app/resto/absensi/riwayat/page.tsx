@@ -139,7 +139,7 @@ export default function RestoAbsensiRiwayatPage() {
               </button>
             </div>
             <div className="relative aspect-[3/4] w-full rounded-2xl overflow-hidden bg-zinc-100 border border-zinc-200">
-              <Image src={selectedPhoto} alt="Selfie Presensi" fill className="object-cover" />
+              <Image src={selectedPhoto} alt="Selfie Presensi" fill className="object-cover" unoptimized />
             </div>
             <button
               onClick={() => setSelectedPhoto(null)}

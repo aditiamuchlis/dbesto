@@ -62,7 +62,7 @@ export default function AdminAbsensiPage() {
                   <td className="p-3.5">
                     <div className="relative w-9 h-9 rounded-full overflow-hidden bg-zinc-200 border border-zinc-300">
                       {att.inPhotoUrl && (
-                        <Image src={att.inPhotoUrl} alt={att.userName || "Staf"} fill className="object-cover" />
+                        <Image src={att.inPhotoUrl} alt={att.userName || "Staf"} fill className="object-cover" unoptimized />
                       )}
                     </div>
                   </td>

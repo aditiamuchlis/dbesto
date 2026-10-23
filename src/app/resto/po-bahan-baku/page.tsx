@@ -315,7 +315,7 @@ export default function PoBahanBakuPage() {
 
             <div className="p-3 rounded-xl bg-zinc-100 flex items-center gap-3">
               <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-zinc-200">
-                <Image src={receiptPhoto} alt="Surat Jalan" fill className="object-cover" />
+                <Image src={receiptPhoto} alt="Surat Jalan" fill className="object-cover" unoptimized />
               </div>
               <div className="text-[11px] text-zinc-600">
                 <p className="font-bold">Bukti Foto Surat Jalan Terlampir</p>
