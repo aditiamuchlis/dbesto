@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -27,11 +27,16 @@ import {
   ShoppingBag,
   CheckCircle2,
   CalendarCheck,
+  Workflow,
+  X,
+  BookOpen,
 } from "lucide-react";
 import { useAppStore } from "@/lib/store";
+import { RoleWorkflowGuide } from "@/components/common/RoleWorkflowGuide";
 
 function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
   const {
     currentUser,
     currentOutlet,
@@ -54,6 +59,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
           group: "DASHBOARD HQ",
           items: [
             { label: "Dashboard Eksekutif HQ", href: "/admin", icon: LayoutDashboard },
+            { label: "Peta Flow & SOP Bisnis", href: "/admin/panduan-flow", icon: Workflow },
             { label: "Master Cabang Resto", href: "/admin/outlets", icon: Store },
             { label: "Master Akun Staf & Role", href: "/admin/users", icon: Users },
           ],
@@ -103,6 +109,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
           group: "DASHBOARD CABANG",
           items: [
             { label: `Dashboard ${currentOutlet.name}`, href: "/admin", icon: LayoutDashboard },
+            { label: "Peta Flow & SOP Bisnis", href: "/admin/panduan-flow", icon: Workflow },
           ],
         },
         {
@@ -136,6 +143,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
           group: "DASHBOARD KASIR",
           items: [
             { label: "Ringkasan Kas & Shift", href: "/admin", icon: LayoutDashboard },
+            { label: "Peta Flow & SOP Kasir", href: "/admin/panduan-flow", icon: Workflow },
           ],
         },
         {
@@ -162,6 +170,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
         group: "DASHBOARD KARYAWAN",
         items: [
           { label: "Ringkasan Tugas & Absen", href: "/admin", icon: LayoutDashboard },
+          { label: "Peta Flow & SOP Dapur", href: "/admin/panduan-flow", icon: Workflow },
         ],
       },
       {
@@ -366,8 +375,18 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
                 </select>
               </div>
 
+              {/* Panduan Flow Bisnis SOP Button */}
+              <button
+                type="button"
+                onClick={() => setIsGuideOpen(true)}
+                className="flex items-center gap-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-zinc-950 font-black px-3 py-1.5 rounded-xl transition shadow-xs text-xs cursor-pointer"
+              >
+                <Workflow className="w-3.5 h-3.5" />
+                <span>Panduan Flow Bisnis</span>
+              </button>
+
               {/* Operational Module Shortcuts (From previous top bar) */}
-              <div className="hidden lg:flex items-center gap-1.5">
+              <div className="hidden xl:flex items-center gap-1.5">
                 {(currentUser.role === "SUPER_ADMIN" || currentUser.role === "RESTO_ADMIN" || currentUser.role === "CASHIER") && (
                   <Link
                     href="/resto/pos"
@@ -443,6 +462,57 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
 
         {/* Body Content */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">{children}</main>
+
+        {/* Interactive Modal: Panduan Flow Bisnis Role */}
+        {isGuideOpen && (
+          <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+            <div className="bg-white rounded-3xl w-full max-w-5xl overflow-hidden shadow-2xl border border-zinc-200 animate-in fade-in zoom-in duration-150 my-6 relative">
+              <div className="flex items-center justify-between p-4 bg-zinc-950 text-white border-b border-zinc-800">
+                <div className="flex items-center gap-2.5">
+                  <Workflow className="w-5 h-5 text-amber-400" />
+                  <span className="text-sm font-black tracking-wide">
+                    PANDUAN ALUR PROSES BISNIS & SOP PERAN
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsGuideOpen(false)}
+                  className="w-8 h-8 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white flex items-center justify-center transition cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="max-h-[80vh] overflow-y-auto p-4 sm:p-6">
+                <RoleWorkflowGuide
+                  initialRole={
+                    currentUser.role === "SUPER_ADMIN"
+                      ? "SUPER_ADMIN"
+                      : currentUser.role === "RESTO_ADMIN"
+                      ? "RESTO_ADMIN"
+                      : currentUser.role === "CASHIER"
+                      ? "CASHIER"
+                      : "STAFF"
+                  }
+                  onNavigate={() => setIsGuideOpen(false)}
+                />
+              </div>
+
+              <div className="p-4 bg-zinc-50 border-t border-zinc-200 flex justify-between items-center text-xs">
+                <span className="text-zinc-500 font-medium">
+                  Peran login Anda saat ini: <strong className="text-zinc-900">{currentUser.name} ({currentUser.role})</strong>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setIsGuideOpen(false)}
+                  className="px-4 py-2 rounded-xl bg-zinc-900 hover:bg-black text-white font-bold transition shadow-xs cursor-pointer"
+                >
+                  Tutup Panduan
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

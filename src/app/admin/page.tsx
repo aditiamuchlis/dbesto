@@ -22,6 +22,7 @@ import {
   UserCheck,
   Building2,
   Sparkles,
+  Workflow,
 } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import { formatRupiah, formatTanggalIndo } from "@/lib/formatters";
@@ -166,6 +167,98 @@ export default function AdminDashboardPage() {
                 Bulan Ini
               </button>
             </div>
+          </div>
+        </div>
+
+        {/* Interactive Alur Bisnis Stepper Card */}
+        <div className="bg-gradient-to-r from-zinc-900 via-zinc-950 to-zinc-900 text-white p-6 rounded-3xl border border-zinc-800 shadow-md space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <span className="text-[10px] bg-amber-400 text-zinc-950 font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                FLOW OPERASIONAL HARIAN
+              </span>
+              <h3 className="text-base font-black text-white mt-1">Alur Kerja Super Admin HQ</h3>
+              <p className="text-xs text-zinc-400">Ikuti tahapan proses bisnis harian secara teratur dari pagi hingga closing.</p>
+            </div>
+            <Link
+              href="/admin/panduan-flow"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-amber-300 font-bold text-xs border border-zinc-700 transition"
+            >
+              <Workflow className="w-3.5 h-3.5" />
+              <span>Lihat Panduan Lengkap Semua Role &rarr;</span>
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 pt-1">
+            <Link
+              href="/admin/laporan/absensi"
+              className="p-3.5 rounded-2xl bg-zinc-800/80 hover:bg-zinc-800 border border-zinc-700/80 hover:border-amber-400 transition flex flex-col justify-between group"
+            >
+              <div className="space-y-1">
+                <span className="text-[10px] font-mono font-bold text-amber-400">LANGKAH 1 (PAGI)</span>
+                <h4 className="text-xs font-black text-white group-hover:text-amber-300 transition">Audit Absensi GPS</h4>
+                <p className="text-[10px] text-zinc-400">Verifikasi radius 100m dan foto selfie staf.</p>
+              </div>
+              <span className="text-[11px] font-bold text-amber-400 mt-2 flex items-center gap-1">
+                Buka Audit &rarr;
+              </span>
+            </Link>
+
+            <Link
+              href="/admin/laporan/po-bahan-baku"
+              className="p-3.5 rounded-2xl bg-zinc-800/80 hover:bg-zinc-800 border border-zinc-700/80 hover:border-amber-400 transition flex flex-col justify-between group"
+            >
+              <div className="space-y-1">
+                <span className="text-[10px] font-mono font-bold text-amber-400">LANGKAH 2 (PAGI)</span>
+                <h4 className="text-xs font-black text-white group-hover:text-amber-300 transition">Approval PO Gudang</h4>
+                <p className="text-[10px] text-zinc-400">Setujui pasokan ayam & bumbu ke resto.</p>
+              </div>
+              <span className="text-[11px] font-bold text-amber-400 mt-2 flex items-center gap-1">
+                Otorisasi PO &rarr;
+              </span>
+            </Link>
+
+            <Link
+              href="/admin/laporan/stock-opname"
+              className="p-3.5 rounded-2xl bg-zinc-800/80 hover:bg-zinc-800 border border-zinc-700/80 hover:border-amber-400 transition flex flex-col justify-between group"
+            >
+              <div className="space-y-1">
+                <span className="text-[10px] font-mono font-bold text-amber-400">LANGKAH 3 (SIANG)</span>
+                <h4 className="text-xs font-black text-white group-hover:text-amber-300 transition">Audit Stock Opname</h4>
+                <p className="text-[10px] text-zinc-400">Validasi selisih fisik vs sistem cabang.</p>
+              </div>
+              <span className="text-[11px] font-bold text-amber-400 mt-2 flex items-center gap-1">
+                Cek Opname &rarr;
+              </span>
+            </Link>
+
+            <Link
+              href="/admin/outlets"
+              className="p-3.5 rounded-2xl bg-zinc-800/80 hover:bg-zinc-800 border border-zinc-700/80 hover:border-amber-400 transition flex flex-col justify-between group"
+            >
+              <div className="space-y-1">
+                <span className="text-[10px] font-mono font-bold text-amber-400">LANGKAH 4 (FLEKSIBEL)</span>
+                <h4 className="text-xs font-black text-white group-hover:text-amber-300 transition">Master Cabang & Menu</h4>
+                <p className="text-[10px] text-zinc-400">Atur koordinat geofence & resep menu.</p>
+              </div>
+              <span className="text-[11px] font-bold text-amber-400 mt-2 flex items-center gap-1">
+                Kelola Data &rarr;
+              </span>
+            </Link>
+
+            <Link
+              href="/admin/laporan/pemasukan"
+              className="p-3.5 rounded-2xl bg-zinc-800/80 hover:bg-zinc-800 border border-zinc-700/80 hover:border-amber-400 transition flex flex-col justify-between group"
+            >
+              <div className="space-y-1">
+                <span className="text-[10px] font-mono font-bold text-amber-400">LANGKAH 5 (MALAM)</span>
+                <h4 className="text-xs font-black text-white group-hover:text-amber-300 transition">Laporan Omzet Global</h4>
+                <p className="text-[10px] text-zinc-400">Rekap omzet bersih seluruh jaringan.</p>
+              </div>
+              <span className="text-[11px] font-bold text-amber-400 mt-2 flex items-center gap-1">
+                Lihat Laporan &rarr;
+              </span>
+            </Link>
           </div>
         </div>
 
@@ -459,6 +552,98 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
+        {/* Interactive Alur Bisnis Stepper: Store Manager */}
+        <div className="bg-gradient-to-r from-zinc-900 via-zinc-950 to-zinc-900 text-white p-6 rounded-3xl border border-zinc-800 shadow-md space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <span className="text-[10px] bg-blue-500 text-white font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                FLOW OPERASIONAL CABANG
+              </span>
+              <h3 className="text-base font-black text-white mt-1">Alur Kerja Harian Store Manager {currentOutlet.name}</h3>
+              <p className="text-xs text-zinc-400">Panduan SOP terstruktur untuk supervisi tim resto dan stok bahan baku.</p>
+            </div>
+            <Link
+              href="/admin/panduan-flow"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-blue-300 font-bold text-xs border border-zinc-700 transition"
+            >
+              <Workflow className="w-3.5 h-3.5" />
+              <span>Lihat Panduan Detail &rarr;</span>
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 pt-1">
+            <Link
+              href="/resto/absensi/riwayat"
+              className="p-3.5 rounded-2xl bg-zinc-800/80 hover:bg-zinc-800 border border-zinc-700/80 hover:border-blue-400 transition flex flex-col justify-between group"
+            >
+              <div className="space-y-1">
+                <span className="text-[10px] font-mono font-bold text-blue-400">LANGKAH 1 (PAGI)</span>
+                <h4 className="text-xs font-black text-white group-hover:text-blue-300 transition">Cek Presensi Kru</h4>
+                <p className="text-[10px] text-zinc-400">Pastikan kasir & dapur sudah Clock In GPS.</p>
+              </div>
+              <span className="text-[11px] font-bold text-blue-400 mt-2 flex items-center gap-1">
+                Cek Absen &rarr;
+              </span>
+            </Link>
+
+            <Link
+              href="/resto/po-bahan-baku"
+              className="p-3.5 rounded-2xl bg-zinc-800/80 hover:bg-zinc-800 border border-zinc-700/80 hover:border-blue-400 transition flex flex-col justify-between group"
+            >
+              <div className="space-y-1">
+                <span className="text-[10px] font-mono font-bold text-blue-400">LANGKAH 2 (PAGI)</span>
+                <h4 className="text-xs font-black text-white group-hover:text-blue-300 transition">Request PO Bahan</h4>
+                <p className="text-[10px] text-zinc-400">Pesan ayam & bumbu sebelum stok kritis.</p>
+              </div>
+              <span className="text-[11px] font-bold text-blue-400 mt-2 flex items-center gap-1">
+                Buat PO &rarr;
+              </span>
+            </Link>
+
+            <Link
+              href="/resto/pos/shift"
+              className="p-3.5 rounded-2xl bg-zinc-800/80 hover:bg-zinc-800 border border-zinc-700/80 hover:border-blue-400 transition flex flex-col justify-between group"
+            >
+              <div className="space-y-1">
+                <span className="text-[10px] font-mono font-bold text-blue-400">LANGKAH 3 (PAGI)</span>
+                <h4 className="text-xs font-black text-white group-hover:text-blue-300 transition">Supervisi Shift Kasir</h4>
+                <p className="text-[10px] text-zinc-400">Verifikasi modal uang awal di laci kasir.</p>
+              </div>
+              <span className="text-[11px] font-bold text-blue-400 mt-2 flex items-center gap-1">
+                Cek Shift &rarr;
+              </span>
+            </Link>
+
+            <Link
+              href="/resto/pos/riwayat"
+              className="p-3.5 rounded-2xl bg-zinc-800/80 hover:bg-zinc-800 border border-zinc-700/80 hover:border-blue-400 transition flex flex-col justify-between group"
+            >
+              <div className="space-y-1">
+                <span className="text-[10px] font-mono font-bold text-blue-400">LANGKAH 4 (SIANG)</span>
+                <h4 className="text-xs font-black text-white group-hover:text-blue-300 transition">Monitoring POS</h4>
+                <p className="text-[10px] text-zinc-400">Pantau tiket pesanan & kepuasan pelanggan.</p>
+              </div>
+              <span className="text-[11px] font-bold text-blue-400 mt-2 flex items-center gap-1">
+                Lihat Penjualan &rarr;
+              </span>
+            </Link>
+
+            <Link
+              href="/resto/stock-opname"
+              className="p-3.5 rounded-2xl bg-zinc-800/80 hover:bg-zinc-800 border border-zinc-700/80 hover:border-blue-400 transition flex flex-col justify-between group"
+            >
+              <div className="space-y-1">
+                <span className="text-[10px] font-mono font-bold text-blue-400">LANGKAH 5 (CLOSING)</span>
+                <h4 className="text-xs font-black text-white group-hover:text-blue-300 transition">Stock Opname Fisik</h4>
+                <p className="text-[10px] text-zinc-400">Hitung sisa bahan dapur & submit ke HQ.</p>
+              </div>
+              <span className="text-[11px] font-bold text-blue-400 mt-2 flex items-center gap-1">
+                Input Opname &rarr;
+              </span>
+            </Link>
+          </div>
+        </div>
+
         {/* Branch KPI Strip */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-white p-5 rounded-3xl border border-zinc-200 shadow-xs space-y-2">
@@ -659,6 +844,98 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
+        {/* Interactive Alur Bisnis Stepper: Cashier */}
+        <div className="bg-gradient-to-r from-zinc-900 via-zinc-950 to-zinc-900 text-white p-6 rounded-3xl border border-zinc-800 shadow-md space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <span className="text-[10px] bg-red-600 text-white font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                FLOW OPERASIONAL KASIR
+              </span>
+              <h3 className="text-base font-black text-white mt-1">Alur Kerja Harian Kasir (Cashier SOP)</h3>
+              <p className="text-xs text-zinc-400">Urutan langkah kerja kasir mulai dari jam datang hingga serah terima kas shift.</p>
+            </div>
+            <Link
+              href="/admin/panduan-flow"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-red-300 font-bold text-xs border border-zinc-700 transition"
+            >
+              <Workflow className="w-3.5 h-3.5" />
+              <span>Lihat Panduan Detail &rarr;</span>
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 pt-1">
+            <Link
+              href="/resto/absensi"
+              className="p-3.5 rounded-2xl bg-zinc-800/80 hover:bg-zinc-800 border border-zinc-700/80 hover:border-red-400 transition flex flex-col justify-between group"
+            >
+              <div className="space-y-1">
+                <span className="text-[10px] font-mono font-bold text-red-400">LANGKAH 1 (DATANG)</span>
+                <h4 className="text-xs font-black text-white group-hover:text-red-300 transition">Clock In Presensi</h4>
+                <p className="text-[10px] text-zinc-400">Selfie wajah & radar GPS 100m.</p>
+              </div>
+              <span className="text-[11px] font-bold text-red-400 mt-2 flex items-center gap-1">
+                Absen Masuk &rarr;
+              </span>
+            </Link>
+
+            <Link
+              href="/resto/pos/shift"
+              className="p-3.5 rounded-2xl bg-zinc-800/80 hover:bg-zinc-800 border border-zinc-700/80 hover:border-red-400 transition flex flex-col justify-between group"
+            >
+              <div className="space-y-1">
+                <span className="text-[10px] font-mono font-bold text-red-400">LANGKAH 2 (MULAI)</span>
+                <h4 className="text-xs font-black text-white group-hover:text-red-300 transition">Buka Shift Kasir</h4>
+                <p className="text-[10px] text-zinc-400">Input modal awal uang laci Rp 300rb.</p>
+              </div>
+              <span className="text-[11px] font-bold text-red-400 mt-2 flex items-center gap-1">
+                Buka Shift &rarr;
+              </span>
+            </Link>
+
+            <Link
+              href="/resto/pos"
+              className="p-3.5 rounded-2xl bg-zinc-800/80 hover:bg-zinc-800 border border-zinc-700/80 hover:border-red-400 transition flex flex-col justify-between group"
+            >
+              <div className="space-y-1">
+                <span className="text-[10px] font-mono font-bold text-red-400">LANGKAH 3 (TRANSAKSI)</span>
+                <h4 className="text-xs font-black text-white group-hover:text-red-300 transition">Terminal POS</h4>
+                <p className="text-[10px] text-zinc-400">Input pesanan, cetak nota struk.</p>
+              </div>
+              <span className="text-[11px] font-bold text-red-400 mt-2 flex items-center gap-1">
+                Buka POS &rarr;
+              </span>
+            </Link>
+
+            <Link
+              href="/resto/pos/shift"
+              className="p-3.5 rounded-2xl bg-zinc-800/80 hover:bg-zinc-800 border border-zinc-700/80 hover:border-red-400 transition flex flex-col justify-between group"
+            >
+              <div className="space-y-1">
+                <span className="text-[10px] font-mono font-bold text-red-400">LANGKAH 4 (AKHIR)</span>
+                <h4 className="text-xs font-black text-white group-hover:text-red-300 transition">Tutup Shift Kasir</h4>
+                <p className="text-[10px] text-zinc-400">Hitung fisik uang tunai & setor kas.</p>
+              </div>
+              <span className="text-[11px] font-bold text-red-400 mt-2 flex items-center gap-1">
+                Tutup Shift &rarr;
+              </span>
+            </Link>
+
+            <Link
+              href="/resto/absensi"
+              className="p-3.5 rounded-2xl bg-zinc-800/80 hover:bg-zinc-800 border border-zinc-700/80 hover:border-red-400 transition flex flex-col justify-between group"
+            >
+              <div className="space-y-1">
+                <span className="text-[10px] font-mono font-bold text-red-400">LANGKAH 5 (PULANG)</span>
+                <h4 className="text-xs font-black text-white group-hover:text-red-300 transition">Clock Out Pulang</h4>
+                <p className="text-[10px] text-zinc-400">Selfie kepulangan di terminal absen.</p>
+              </div>
+              <span className="text-[11px] font-bold text-red-400 mt-2 flex items-center gap-1">
+                Absen Pulang &rarr;
+              </span>
+            </Link>
+          </div>
+        </div>
+
         {/* Shift Cashier Metrics */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-white p-5 rounded-3xl border border-zinc-200 shadow-xs space-y-2">
@@ -804,6 +1081,98 @@ export default function AdminDashboardPage() {
               Input Hitung Stok
             </Link>
           </div>
+        </div>
+      </div>
+
+      {/* Interactive Alur Bisnis Stepper: Staff Kitchen */}
+      <div className="bg-gradient-to-r from-zinc-900 via-zinc-950 to-zinc-900 text-white p-6 rounded-3xl border border-zinc-800 shadow-md space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <span className="text-[10px] bg-emerald-600 text-white font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+              FLOW OPERASIONAL DAPUR
+            </span>
+            <h3 className="text-base font-black text-white mt-1">Alur Kerja Harian Kru Dapur (Kitchen SOP)</h3>
+            <p className="text-xs text-zinc-400">Tahapan kerja staf dapur mulai dari jam masuk, pengolahan ayam, hingga opname malam.</p>
+          </div>
+          <Link
+            href="/admin/panduan-flow"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-emerald-300 font-bold text-xs border border-zinc-700 transition"
+          >
+            <Workflow className="w-3.5 h-3.5" />
+            <span>Lihat Panduan Detail &rarr;</span>
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 pt-1">
+          <Link
+            href="/resto/absensi"
+            className="p-3.5 rounded-2xl bg-zinc-800/80 hover:bg-zinc-800 border border-zinc-700/80 hover:border-emerald-400 transition flex flex-col justify-between group"
+          >
+            <div className="space-y-1">
+              <span className="text-[10px] font-mono font-bold text-emerald-400">LANGKAH 1 (DATANG)</span>
+              <h4 className="text-xs font-black text-white group-hover:text-emerald-300 transition">Clock In Presensi</h4>
+              <p className="text-[10px] text-zinc-400">Verifikasi selfie wajah & GPS 100m.</p>
+            </div>
+            <span className="text-[11px] font-bold text-emerald-400 mt-2 flex items-center gap-1">
+              Absen Masuk &rarr;
+            </span>
+          </Link>
+
+          <Link
+            href="/admin"
+            className="p-3.5 rounded-2xl bg-zinc-800/80 hover:bg-zinc-800 border border-zinc-700/80 hover:border-emerald-400 transition flex flex-col justify-between group"
+          >
+            <div className="space-y-1">
+              <span className="text-[10px] font-mono font-bold text-emerald-400">LANGKAH 2 (PAGI)</span>
+              <h4 className="text-xs font-black text-white group-hover:text-emerald-300 transition">Cek Stok Dapur</h4>
+              <p className="text-[10px] text-zinc-400">Ayam marinasi, tepung bumbu, minyak.</p>
+            </div>
+            <span className="text-[11px] font-bold text-emerald-400 mt-2 flex items-center gap-1">
+              Lihat Bahan &rarr;
+            </span>
+          </Link>
+
+          <Link
+            href="/admin"
+            className="p-3.5 rounded-2xl bg-zinc-800/80 hover:bg-zinc-800 border border-zinc-700/80 hover:border-emerald-400 transition flex flex-col justify-between group"
+          >
+            <div className="space-y-1">
+              <span className="text-[10px] font-mono font-bold text-emerald-400">LANGKAH 3 (PRODUKSI)</span>
+              <h4 className="text-xs font-black text-white group-hover:text-emerald-300 transition">Goreng Ayam SOP</h4>
+              <p className="text-[10px] text-zinc-400">Deep fryer 170°C selama 12-14 menit.</p>
+            </div>
+            <span className="text-[11px] font-bold text-emerald-400 mt-2 flex items-center gap-1">
+              Standar SOP &rarr;
+            </span>
+          </Link>
+
+          <Link
+            href="/resto/stock-opname"
+            className="p-3.5 rounded-2xl bg-zinc-800/80 hover:bg-zinc-800 border border-zinc-700/80 hover:border-emerald-400 transition flex flex-col justify-between group"
+          >
+            <div className="space-y-1">
+              <span className="text-[10px] font-mono font-bold text-emerald-400">LANGKAH 4 (MALAM)</span>
+              <h4 className="text-xs font-black text-white group-hover:text-emerald-300 transition">Stock Opname</h4>
+              <p className="text-[10px] text-zinc-400">Hitung fisik bahan baku di chiller.</p>
+            </div>
+            <span className="text-[11px] font-bold text-emerald-400 mt-2 flex items-center gap-1">
+              Input Hitung &rarr;
+            </span>
+          </Link>
+
+          <Link
+            href="/resto/absensi"
+            className="p-3.5 rounded-2xl bg-zinc-800/80 hover:bg-zinc-800 border border-zinc-700/80 hover:border-emerald-400 transition flex flex-col justify-between group"
+          >
+            <div className="space-y-1">
+              <span className="text-[10px] font-mono font-bold text-emerald-400">LANGKAH 5 (PULANG)</span>
+              <h4 className="text-xs font-black text-white group-hover:text-emerald-300 transition">Clock Out Pulang</h4>
+              <p className="text-[10px] text-zinc-400">Selfie kepulangan setelah closing.</p>
+            </div>
+            <span className="text-[11px] font-bold text-emerald-400 mt-2 flex items-center gap-1">
+              Absen Pulang &rarr;
+            </span>
+          </Link>
         </div>
       </div>
 

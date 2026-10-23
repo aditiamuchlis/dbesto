@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -17,10 +17,14 @@ import {
   ShieldCheck,
   CalendarCheck,
   LayoutDashboard,
+  Workflow,
+  X,
 } from "lucide-react";
+import { RoleWorkflowGuide } from "@/components/common/RoleWorkflowGuide";
 
 function RestoLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
   const { currentOutlet, currentUser, shifts, switchOutlet, switchUser, outlets, users } =
     useAppStore();
 
@@ -37,6 +41,7 @@ function RestoLayoutContent({ children }: { children: React.ReactNode }) {
         { label: "Riwayat Transaksi", href: "/resto/pos/riwayat", icon: BarChart3 },
         { label: "Absensi GPS", href: "/resto/absensi", icon: MapPin },
         { label: "Riwayat Presensi", href: "/resto/absensi/riwayat", icon: CalendarCheck },
+        { label: "Peta Flow SOP", href: "/admin/panduan-flow", icon: Workflow },
       ];
     }
 
@@ -46,6 +51,7 @@ function RestoLayoutContent({ children }: { children: React.ReactNode }) {
         { label: "Riwayat Presensi", href: "/resto/absensi/riwayat", icon: CalendarCheck },
         { label: "Stock Opname", href: "/resto/stock-opname", icon: ClipboardList },
         { label: "Riwayat Opname", href: "/resto/stock-opname/riwayat", icon: ClipboardList },
+        { label: "Peta Flow SOP", href: "/admin/panduan-flow", icon: Workflow },
       ];
     }
 
@@ -58,6 +64,7 @@ function RestoLayoutContent({ children }: { children: React.ReactNode }) {
       { label: "PO Bahan Baku", href: "/resto/po-bahan-baku", icon: Truck },
       { label: "Absensi GPS", href: "/resto/absensi", icon: MapPin },
       { label: "Laporan Harian", href: "/resto/laporan", icon: BarChart3 },
+      { label: "Peta Flow SOP", href: "/admin/panduan-flow", icon: Workflow },
     ];
   };
 
@@ -142,6 +149,16 @@ function RestoLayoutContent({ children }: { children: React.ReactNode }) {
               </select>
             </div>
 
+            {/* Panduan Flow Bisnis Button */}
+            <button
+              type="button"
+              onClick={() => setIsGuideOpen(true)}
+              className="flex items-center gap-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 text-zinc-950 font-black px-2.5 py-1 rounded-lg text-xs transition cursor-pointer"
+            >
+              <Workflow className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Panduan Flow Bisnis</span>
+            </button>
+
             <Link
               href="/"
               className="text-xs text-zinc-400 hover:text-white px-2.5 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 transition"
@@ -179,6 +196,57 @@ function RestoLayoutContent({ children }: { children: React.ReactNode }) {
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6">{children}</main>
+
+      {/* Interactive Modal: Panduan Flow Bisnis Role */}
+      {isGuideOpen && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl w-full max-w-5xl overflow-hidden shadow-2xl border border-zinc-200 animate-in fade-in zoom-in duration-150 my-6 relative">
+            <div className="flex items-center justify-between p-4 bg-zinc-950 text-white border-b border-zinc-800">
+              <div className="flex items-center gap-2.5">
+                <Workflow className="w-5 h-5 text-amber-400" />
+                <span className="text-sm font-black tracking-wide">
+                  PANDUAN ALUR PROSES BISNIS & SOP PERAN
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsGuideOpen(false)}
+                className="w-8 h-8 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white flex items-center justify-center transition cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="max-h-[80vh] overflow-y-auto p-4 sm:p-6">
+              <RoleWorkflowGuide
+                initialRole={
+                  currentUser.role === "SUPER_ADMIN"
+                    ? "SUPER_ADMIN"
+                    : currentUser.role === "RESTO_ADMIN"
+                    ? "RESTO_ADMIN"
+                    : currentUser.role === "CASHIER"
+                    ? "CASHIER"
+                    : "STAFF"
+                }
+                onNavigate={() => setIsGuideOpen(false)}
+              />
+            </div>
+
+            <div className="p-4 bg-zinc-50 border-t border-zinc-200 flex justify-between items-center text-xs">
+              <span className="text-zinc-500 font-medium">
+                Peran login Anda saat ini: <strong className="text-zinc-900">{currentUser.name} ({currentUser.role})</strong>
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsGuideOpen(false)}
+                className="px-4 py-2 rounded-xl bg-zinc-900 hover:bg-black text-white font-bold transition shadow-xs cursor-pointer"
+              >
+                Tutup Panduan
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
