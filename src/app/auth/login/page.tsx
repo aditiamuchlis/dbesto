@@ -5,32 +5,108 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAppStore } from "@/lib/store";
-import { Lock, Mail, ArrowRight, ShieldCheck, ShoppingBag, UserCheck } from "lucide-react";
+import {
+  Lock,
+  Mail,
+  User,
+  ShieldCheck,
+  Eye,
+  EyeOff,
+  AlertCircle,
+  CheckCircle2,
+  KeyRound,
+  FileText,
+} from "lucide-react";
+import { signJwtToken } from "@/lib/jwt";
 
 export default function LoginPage() {
   const router = useRouter();
   const { users, switchUser } = useAppStore();
-  const [email, setEmail] = useState("kasir.margonda@dbesto.co.id");
-  const [password, setPassword] = useState("••••••••");
 
-  const handleLogin = (e: React.FormEvent) => {
+  const [emailOrUsername, setEmailOrUsername] = useState("superadmin");
+  const [password, setPassword] = useState("admin123");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [showGuide, setShowGuide] = useState(false);
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const matched = users.find((u) => u.email.toLowerCase() === email.toLowerCase()) || users[0];
-    switchUser(matched.id);
-    router.push("/admin");
-  };
+    setIsLoading(true);
+    setErrorMessage(null);
+    setSuccessMessage(null);
 
-  const handleQuickDemo = (userId: string) => {
-    const user = users.find((u) => u.id === userId) || users[0];
-    switchUser(user.id);
-    router.push("/admin");
+    try {
+      const trimmed = emailOrUsername.trim().toLowerCase();
+
+      // Attempt login via API route first
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ emailOrUsername: trimmed, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        setErrorMessage(data.message || "Username/email atau password salah.");
+        setIsLoading(false);
+        return;
+      }
+
+      // Store JWT Token in localStorage
+      localStorage.setItem("dbesto_jwt_token", data.token);
+
+      // Switch active user in client store
+      switchUser(data.user.id);
+
+      setSuccessMessage(`Login berhasil sebagai ${data.user.name} [${data.user.role}]! Mengalihkan...`);
+
+      setTimeout(() => {
+        router.push("/admin");
+      }, 700);
+    } catch (err) {
+      // Client-side fallback authentication if offline
+      const matched = users.find(
+        (u) =>
+          u.email.toLowerCase() === emailOrUsername.trim().toLowerCase() ||
+          (u.username && u.username.toLowerCase() === emailOrUsername.trim().toLowerCase())
+      );
+
+      if (!matched || matched.password !== password) {
+        setErrorMessage("Username atau password tidak cocok.");
+        setIsLoading(false);
+        return;
+      }
+
+      const clientToken = await signJwtToken({
+        id: matched.id,
+        email: matched.email,
+        name: matched.name,
+        role: matched.role,
+        outletId: matched.outletId,
+        outletName: matched.outletName,
+      });
+
+      localStorage.setItem("dbesto_jwt_token", clientToken);
+      switchUser(matched.id);
+      setSuccessMessage(`Login berhasil sebagai ${matched.name}! Mengalihkan...`);
+
+      setTimeout(() => {
+        router.push("/admin");
+      }, 700);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white flex flex-col justify-center items-center p-4 relative overflow-hidden font-sans">
       <div className="absolute inset-0 bg-radial-at-t from-red-950/40 via-transparent to-transparent pointer-events-none" />
 
-      <div className="w-full max-w-md bg-zinc-900/90 border border-zinc-800 rounded-3xl p-8 shadow-2xl relative z-10 space-y-6">
+      <div className="w-full max-w-md bg-zinc-900/95 border border-zinc-800 rounded-3xl p-8 shadow-2xl relative z-10 space-y-6">
+        {/* Header Branding */}
         <div className="text-center space-y-2">
           <div className="relative h-14 w-36 mx-auto mb-2">
             <Image
@@ -42,22 +118,38 @@ export default function LoginPage() {
           </div>
           <h2 className="text-2xl font-black text-white tracking-tight">Portal Internal D&apos;Besto</h2>
           <p className="text-xs text-zinc-400">
-            Masuk untuk mengakses Dashboard Admin, Operasional POS Kasir, atau Manajemen Resto.
+            Masuk dengan kredensial akun terdaftar untuk verifikasi token JWT.
           </p>
         </div>
 
+        {/* Error / Success Feedback */}
+        {errorMessage && (
+          <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-xs p-3.5 rounded-xl flex items-center gap-2.5 animate-in fade-in">
+            <AlertCircle className="w-4 h-4 flex-shrink-0 text-red-400" />
+            <span>{errorMessage}</span>
+          </div>
+        )}
+
+        {successMessage && (
+          <div className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs p-3.5 rounded-xl flex items-center gap-2.5 animate-in fade-in">
+            <CheckCircle2 className="w-4 h-4 flex-shrink-0 text-emerald-400" />
+            <span>{successMessage}</span>
+          </div>
+        )}
+
+        {/* Real Form Login */}
         <form onSubmit={handleLogin} className="space-y-4 text-xs">
           <div>
-            <label className="font-bold text-zinc-300 block mb-1">Email Karyawan / HQ:</label>
+            <label className="font-bold text-zinc-300 block mb-1">Username atau Email:</label>
             <div className="relative">
-              <Mail className="w-4 h-4 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
+              <User className="w-4 h-4 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
-                type="email"
+                type="text"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="nama@dbesto.co.id"
-                className="w-full pl-9 pr-3 py-3 rounded-xl bg-zinc-800 border border-zinc-700 text-white focus:outline-none focus:border-[#D32323]"
+                value={emailOrUsername}
+                onChange={(e) => setEmailOrUsername(e.target.value)}
+                placeholder="Contoh: superadmin atau nama@dbesto.co.id"
+                className="w-full pl-9 pr-3 py-3 rounded-xl bg-zinc-800/80 border border-zinc-700 text-white placeholder:text-zinc-500 focus:outline-none focus:border-[#D32323] transition"
               />
             </div>
           </div>
@@ -67,78 +159,105 @@ export default function LoginPage() {
             <div className="relative">
               <Lock className="w-4 h-4 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-9 pr-3 py-3 rounded-xl bg-zinc-800 border border-zinc-700 text-white focus:outline-none focus:border-[#D32323]"
+                placeholder="Masukkan kata sandi akun"
+                className="w-full pl-9 pr-10 py-3 rounded-xl bg-zinc-800/80 border border-zinc-700 text-white placeholder:text-zinc-500 focus:outline-none focus:border-[#D32323] transition"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white"
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
             </div>
           </div>
 
           <button
             type="submit"
-            className="w-full bg-[#D32323] hover:bg-[#B31818] text-white font-bold py-3.5 rounded-xl shadow-lg shadow-red-500/25 transition cursor-pointer"
+            disabled={isLoading}
+            className="w-full bg-[#D32323] hover:bg-[#B31818] disabled:opacity-50 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-red-500/25 transition cursor-pointer flex items-center justify-center gap-2"
           >
-            Masuk ke Dashboard
+            <KeyRound className="w-4 h-4" />
+            <span>{isLoading ? "Memverifikasi JWT..." : "Masuk dengan JWT"}</span>
           </button>
         </form>
 
-        {/* Demo Fast Login Buttons for all 4 roles */}
-        <div className="pt-4 border-t border-zinc-800 space-y-2.5">
-          <p className="text-[11px] font-bold text-zinc-400 text-center uppercase tracking-wider">
-            1-Click Demo Login Sesuai Role:
-          </p>
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <button
-              onClick={() => handleQuickDemo("usr-super-01")}
-              className="p-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 font-bold transition flex flex-col items-center justify-center gap-1 cursor-pointer text-center"
-            >
-              <div className="flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4" />
-                <span>Super Admin</span>
-              </div>
-              <span className="text-[10px] text-zinc-400 font-normal">HQ Central</span>
-            </button>
+        {/* Collapsible Account List / Guide */}
+        <div className="pt-2 border-t border-zinc-800/80 space-y-2">
+          <button
+            type="button"
+            onClick={() => setShowGuide(!showGuide)}
+            className="w-full flex items-center justify-between text-xs text-zinc-400 hover:text-white py-2 px-3 rounded-xl bg-zinc-800/50 border border-zinc-700/60 transition"
+          >
+            <span className="flex items-center gap-2 font-semibold">
+              <FileText className="w-3.5 h-3.5 text-amber-400" />
+              <span>Daftar Akun & Password (ACCOUNTS.md)</span>
+            </span>
+            <span className="text-[10px] text-amber-400 font-mono font-bold">
+              {showGuide ? "▲ Sembunyikan" : "▼ Buka"}
+            </span>
+          </button>
 
-            <button
-              onClick={() => handleQuickDemo("usr-adm-mrg")}
-              className="p-2.5 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/30 font-bold transition flex flex-col items-center justify-center gap-1 cursor-pointer text-center"
-            >
-              <div className="flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4" />
-                <span>Resto Admin</span>
+          {showGuide && (
+            <div className="bg-zinc-800/60 border border-zinc-700/60 rounded-xl p-3 text-[11px] space-y-2.5 animate-in fade-in">
+              <div className="flex items-center justify-between border-b border-zinc-700/50 pb-1.5">
+                <div>
+                  <p className="font-bold text-white">Super Admin HQ</p>
+                  <p className="text-zinc-400 font-mono">user: superadmin</p>
+                </div>
+                <div className="text-right">
+                  <span className="bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded text-[10px] font-bold">
+                    admin123
+                  </span>
+                </div>
               </div>
-              <span className="text-[10px] text-zinc-400 font-normal">Manajer Cabang</span>
-            </button>
 
-            <button
-              onClick={() => handleQuickDemo("usr-kasir-mrg")}
-              className="p-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 font-bold transition flex flex-col items-center justify-center gap-1 cursor-pointer text-center"
-            >
-              <div className="flex items-center gap-1.5">
-                <ShoppingBag className="w-4 h-4" />
-                <span>Kasir Resto</span>
+              <div className="flex items-center justify-between border-b border-zinc-700/50 pb-1.5">
+                <div>
+                  <p className="font-bold text-white">Store Manager (Margonda)</p>
+                  <p className="text-zinc-400 font-mono">user: manager.margonda</p>
+                </div>
+                <div className="text-right">
+                  <span className="bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded text-[10px] font-bold">
+                    manager123
+                  </span>
+                </div>
               </div>
-              <span className="text-[10px] text-zinc-400 font-normal">Terminal POS</span>
-            </button>
 
-            <button
-              onClick={() => handleQuickDemo("usr-staf-mrg")}
-              className="p-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold transition flex flex-col items-center justify-center gap-1 cursor-pointer text-center"
-            >
-              <div className="flex items-center gap-1.5">
-                <UserCheck className="w-4 h-4" />
-                <span>Staff Karyawan</span>
+              <div className="flex items-center justify-between border-b border-zinc-700/50 pb-1.5">
+                <div>
+                  <p className="font-bold text-white">Kasir Resto (Margonda)</p>
+                  <p className="text-zinc-400 font-mono">user: kasir.margonda</p>
+                </div>
+                <div className="text-right">
+                  <span className="bg-red-500/20 text-red-300 px-1.5 py-0.5 rounded text-[10px] font-bold">
+                    kasir123
+                  </span>
+                </div>
               </div>
-              <span className="text-[10px] text-zinc-400 font-normal">Dapur & Stok</span>
-            </button>
-          </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-bold text-white">Staf Dapur / Kitchen</p>
+                  <p className="text-zinc-400 font-mono">user: staf.margonda</p>
+                </div>
+                <div className="text-right">
+                  <span className="bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded text-[10px] font-bold">
+                    staf123
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
-        <div className="text-center pt-2">
+        <div className="text-center pt-1">
           <Link href="/" className="text-xs text-zinc-400 hover:text-white transition">
-            ← Kembali ke Halaman Utama Website
+            ← Kembali ke Website D&apos;Besto
           </Link>
         </div>
       </div>

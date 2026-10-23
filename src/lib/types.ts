@@ -48,6 +48,8 @@ export interface Outlet {
 export interface User {
   id: string;
   email: string;
+  username?: string;
+  password?: string;
   name: string;
   phone?: string;
   role: UserRole;
@@ -180,8 +182,11 @@ export interface StockOpname {
   outletName?: string;
   createdById: string;
   createdByName?: string;
+  conductedById?: string;
+  conductedByName?: string;
   opnameDate: string;
   status: StockOpnameStatus;
+  totalDifferenceQty?: number;
   totalLossAmount: number;
   notes?: string;
   approvedAt?: string;

@@ -15,6 +15,8 @@ import {
   Attendance,
   CartItem,
   UserRole,
+  Promotion,
+  Article,
 } from "./types";
 import {
   INITIAL_OUTLETS,
@@ -38,6 +40,9 @@ const STORAGE_KEYS = {
   OUTLETS: "dbesto_outlets_v1",
   USERS: "dbesto_users_v1",
   PRODUCTS: "dbesto_products_v1",
+  MATERIALS: "dbesto_materials_v1",
+  PROMOTIONS: "dbesto_promos_v1",
+  ARTICLES: "dbesto_articles_v1",
   STOCKS: "dbesto_stocks_v1",
   SHIFTS: "dbesto_shifts_v1",
   POS_ORDERS: "dbesto_orders_v1",
@@ -47,6 +52,7 @@ const STORAGE_KEYS = {
   CURRENT_USER_ID: "dbesto_curr_user_v1",
   CURRENT_OUTLET_ID: "dbesto_curr_outlet_v1",
   CART: "dbesto_cart_v1",
+  JWT_TOKEN: "dbesto_jwt_token",
 };
 
 function getStorage<T>(key: string, fallback: T): T {
@@ -74,6 +80,9 @@ export function useAppStore() {
   const [outlets, setOutlets] = useState<Outlet[]>(INITIAL_OUTLETS);
   const [users, setUsers] = useState<User[]>(INITIAL_USERS);
   const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
+  const [rawMaterials, setRawMaterials] = useState<RawMaterial[]>(INITIAL_RAW_MATERIALS);
+  const [promotions, setPromotions] = useState<Promotion[]>(INITIAL_PROMOTIONS);
+  const [articles, setArticles] = useState<Article[]>(INITIAL_ARTICLES);
   const [stocks, setStocks] = useState<OutletMaterialStock[]>(INITIAL_OUTLET_STOCKS);
   const [shifts, setShifts] = useState<CashierShift[]>(INITIAL_SHIFTS);
   const [posOrders, setPosOrders] = useState<PosOrder[]>(INITIAL_POS_ORDERS);
@@ -81,9 +90,10 @@ export function useAppStore() {
   const [purchaseOrders, setPurchaseOrders] = useState<PurchaseOrder[]>(INITIAL_PURCHASE_ORDERS);
   const [attendances, setAttendances] = useState<Attendance[]>(INITIAL_ATTENDANCES);
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [jwtToken, setJwtToken] = useState<string | null>(null);
 
   // Current session context
-  const [currentUserId, setCurrentUserId] = useState<string>("usr-kasir-mrg");
+  const [currentUserId, setCurrentUserId] = useState<string>("usr-super-01");
   const [currentOutletId, setCurrentOutletId] = useState<string>("out-mrg-01");
 
   useEffect(() => {
@@ -91,6 +101,9 @@ export function useAppStore() {
     setOutlets(getStorage(STORAGE_KEYS.OUTLETS, INITIAL_OUTLETS));
     setUsers(getStorage(STORAGE_KEYS.USERS, INITIAL_USERS));
     setProducts(getStorage(STORAGE_KEYS.PRODUCTS, INITIAL_PRODUCTS));
+    setRawMaterials(getStorage(STORAGE_KEYS.MATERIALS, INITIAL_RAW_MATERIALS));
+    setPromotions(getStorage(STORAGE_KEYS.PROMOTIONS, INITIAL_PROMOTIONS));
+    setArticles(getStorage(STORAGE_KEYS.ARTICLES, INITIAL_ARTICLES));
     setStocks(getStorage(STORAGE_KEYS.STOCKS, INITIAL_OUTLET_STOCKS));
     setShifts(getStorage(STORAGE_KEYS.SHIFTS, INITIAL_SHIFTS));
     setPosOrders(getStorage(STORAGE_KEYS.POS_ORDERS, INITIAL_POS_ORDERS));
@@ -98,6 +111,9 @@ export function useAppStore() {
     setPurchaseOrders(getStorage(STORAGE_KEYS.PURCHASE_ORDERS, INITIAL_PURCHASE_ORDERS));
     setAttendances(getStorage(STORAGE_KEYS.ATTENDANCES, INITIAL_ATTENDANCES));
     setCart(getStorage(STORAGE_KEYS.CART, []));
+
+    const token = localStorage.getItem(STORAGE_KEYS.JWT_TOKEN);
+    if (token) setJwtToken(token);
 
     const savedUser = localStorage.getItem(STORAGE_KEYS.CURRENT_USER_ID);
     if (savedUser) setCurrentUserId(savedUser);
@@ -125,6 +141,15 @@ export function useAppStore() {
     setStorage(STORAGE_KEYS.CURRENT_OUTLET_ID, outletId);
   };
 
+  const logout = () => {
+    localStorage.removeItem(STORAGE_KEYS.JWT_TOKEN);
+    setJwtToken(null);
+    if (typeof document !== "undefined") {
+      document.cookie = "dbesto_jwt=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+    }
+    window.location.href = "/auth/login";
+  };
+
   // Cart operations
   const addToCart = (product: Product, quantity = 1, notes?: string) => {
     setCart((prev) => {
@@ -146,9 +171,10 @@ export function useAppStore() {
 
   const updateCartQty = (productId: string, quantity: number) => {
     setCart((prev) => {
-      const updated = quantity <= 0
-        ? prev.filter((item) => item.product.id !== productId)
-        : prev.map((item) => (item.product.id === productId ? { ...item, quantity } : item));
+      const updated =
+        quantity <= 0
+          ? prev.filter((item) => item.product.id !== productId)
+          : prev.map((item) => (item.product.id === productId ? { ...item, quantity } : item));
       setStorage(STORAGE_KEYS.CART, updated);
       return updated;
     });
@@ -253,12 +279,12 @@ export function useAppStore() {
   ): StockOpname => {
     let totalLoss = 0;
     const opnameItems = items.map((it, idx) => {
-      const mat = INITIAL_RAW_MATERIALS.find((m) => m.id === it.materialId)!;
+      const mat = rawMaterials.find((m) => m.id === it.materialId) || INITIAL_RAW_MATERIALS[0];
       const diff = it.physicalStock - it.systemStock;
       const loss = diff < 0 ? Math.abs(diff) * mat.standardCost : 0;
       totalLoss += loss;
       return {
-        id: `soi-${Date.now()}-${idx}`,
+        id: `oi-${Date.now()}-${idx}`,
         materialId: it.materialId,
         materialName: mat.name,
         materialCode: mat.code,
@@ -268,19 +294,22 @@ export function useAppStore() {
         difference: diff,
         costPerUnit: mat.standardCost,
         lossValue: loss,
-        reason: it.reason || "Cek fisik rutin",
+        reason: it.reason || (diff < 0 ? "Selisih susut fisik" : "Sesuai standar"),
       };
     });
 
     const newOpname: StockOpname = {
-      id: `so-${Date.now()}`,
+      id: `opn-${Date.now()}`,
       opnameNumber: generateOpnameNumber(currentOutlet.code),
       outletId: currentOutlet.id,
       outletName: currentOutlet.name,
       createdById: currentUser.id,
       createdByName: currentUser.name,
+      conductedById: currentUser.id,
+      conductedByName: currentUser.name,
       opnameDate: new Date().toISOString(),
       status: "SUBMITTED",
+      totalDifferenceQty: items.reduce((acc, it) => acc + (it.physicalStock - it.systemStock), 0),
       totalLossAmount: totalLoss,
       notes,
       items: opnameItems,
@@ -292,53 +321,66 @@ export function useAppStore() {
     return newOpname;
   };
 
-  const approveStockOpname = (opnameId: string) => {
-    const opname = stockOpnames.find((o) => o.id === opnameId);
-    if (!opname) return;
-
-    // Update stock in outlet
-    setStocks((prev) => {
-      const updated = prev.map((stk) => {
-        if (stk.outletId === opname.outletId) {
-          const item = opname.items.find((i) => i.materialId === stk.materialId);
-          if (item) {
-            return { ...stk, currentStock: item.physicalStock, updatedAt: new Date().toISOString() };
-          }
-        }
-        return stk;
-      });
-      setStorage(STORAGE_KEYS.STOCKS, updated);
-      return updated;
-    });
-
-    // Update opname status
+  const approveStockOpname = (opnameId: string, status: "APPROVED" | "REJECTED" = "APPROVED") => {
     setStockOpnames((prev) => {
-      const updated = prev.map((o) =>
-        o.id === opnameId ? { ...o, status: "APPROVED" as const, approvedAt: new Date().toISOString() } : o
-      );
+      const updated = prev.map((opn) => {
+        if (opn.id === opnameId) {
+          const updatedOpn = {
+            ...opn,
+            status,
+            approvedById: currentUser.id,
+            approvedByName: currentUser.name,
+            approvedAt: new Date().toISOString(),
+          };
+
+          // If approved, update outlet stocks to physical count
+          if (status === "APPROVED") {
+            setStocks((prevStocks) => {
+              const updatedStocks = prevStocks.map((stk) => {
+                if (stk.outletId === opn.outletId) {
+                  const matchItem = opn.items.find((i) => i.materialId === stk.materialId);
+                  if (matchItem) {
+                    return {
+                      ...stk,
+                      currentStock: matchItem.physicalStock,
+                      updatedAt: new Date().toISOString(),
+                    };
+                  }
+                }
+                return stk;
+              });
+              setStorage(STORAGE_KEYS.STOCKS, updatedStocks);
+              return updatedStocks;
+            });
+          }
+
+          return updatedOpn;
+        }
+        return opn;
+      });
       setStorage(STORAGE_KEYS.OPNAMES, updated);
       return updated;
     });
   };
 
-  // Purchase Order
+  // Purchase Order (PO Bahan Baku)
   const createPurchaseOrder = (
     items: { materialId: string; orderedQty: number }[],
-    deliveryDate?: string,
+    deliveryDate: string,
     notes?: string
   ): PurchaseOrder => {
     let total = 0;
     const poItems = items.map((it, idx) => {
-      const mat = INITIAL_RAW_MATERIALS.find((m) => m.id === it.materialId)!;
+      const mat = rawMaterials.find((m) => m.id === it.materialId) || INITIAL_RAW_MATERIALS[0];
       const sub = it.orderedQty * mat.standardCost;
       total += sub;
       return {
         id: `poi-${Date.now()}-${idx}`,
         materialId: it.materialId,
         materialName: mat.name,
+        materialCode: mat.code,
         unit: mat.unit,
         orderedQty: it.orderedQty,
-        receivedQty: 0,
         unitCost: mat.standardCost,
         subtotal: sub,
       };
@@ -383,7 +425,6 @@ export function useAppStore() {
             receivedAt: isRec ? new Date().toISOString() : po.receivedAt,
           };
 
-          // If received, increase outlet stocks
           if (isRec) {
             setStocks((prevStocks) => {
               const updatedStocks = prevStocks.map((stk) => {
@@ -444,7 +485,9 @@ export function useAppStore() {
       inLatitude: userLat,
       inLongitude: userLon,
       inDistanceM: geo.distanceMeters,
-      inPhotoUrl: photoUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop",
+      inPhotoUrl:
+        photoUrl ||
+        "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop",
       status: isLate ? "LATE" : "PRESENT",
       lateMinutes: lateMins,
       notes: isLate ? `Terlambat ${lateMins} menit` : "Hadir tepat waktu",
@@ -481,7 +524,9 @@ export function useAppStore() {
             outLatitude: userLat,
             outLongitude: userLon,
             outDistanceM: geo.distanceMeters,
-            outPhotoUrl: photoUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop",
+            outPhotoUrl:
+              photoUrl ||
+              "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop",
             workHours,
           };
         }
@@ -492,8 +537,42 @@ export function useAppStore() {
     });
   };
 
-  // Add new Outlet (Super Admin)
-  const addOutlet = (newOutlet: Omit<Outlet, "id" | "createdAt">) => {
+  // ==========================================
+  // FULL CRUD METHODS: PRODUCTS / MENU
+  // ==========================================
+  const addProduct = (prodData: Omit<Product, "id">): Product => {
+    const newProd: Product = {
+      ...prodData,
+      id: `prod-${Date.now()}`,
+    };
+    const updated = [newProd, ...products];
+    setProducts(updated);
+    setStorage(STORAGE_KEYS.PRODUCTS, updated);
+    return newProd;
+  };
+
+  const updateProduct = (id: string, updates: Partial<Product>) => {
+    const updated = products.map((p) => (p.id === id ? { ...p, ...updates } : p));
+    setProducts(updated);
+    setStorage(STORAGE_KEYS.PRODUCTS, updated);
+  };
+
+  const deleteProduct = (id: string) => {
+    const updated = products.filter((p) => p.id !== id);
+    setProducts(updated);
+    setStorage(STORAGE_KEYS.PRODUCTS, updated);
+  };
+
+  const toggleProductAvailability = (id: string) => {
+    const updated = products.map((p) => (p.id === id ? { ...p, isAvailable: !p.isAvailable } : p));
+    setProducts(updated);
+    setStorage(STORAGE_KEYS.PRODUCTS, updated);
+  };
+
+  // ==========================================
+  // FULL CRUD METHODS: OUTLETS / CABANG
+  // ==========================================
+  const addOutlet = (newOutlet: Omit<Outlet, "id" | "createdAt">): Outlet => {
     const created: Outlet = {
       ...newOutlet,
       id: `out-${Date.now()}`,
@@ -505,8 +584,22 @@ export function useAppStore() {
     return created;
   };
 
-  // Add new User (Super Admin)
-  const addUser = (newUser: Omit<User, "id">) => {
+  const updateOutlet = (id: string, updates: Partial<Outlet>) => {
+    const updated = outlets.map((o) => (o.id === id ? { ...o, ...updates } : o));
+    setOutlets(updated);
+    setStorage(STORAGE_KEYS.OUTLETS, updated);
+  };
+
+  const deleteOutlet = (id: string) => {
+    const updated = outlets.filter((o) => o.id !== id);
+    setOutlets(updated);
+    setStorage(STORAGE_KEYS.OUTLETS, updated);
+  };
+
+  // ==========================================
+  // FULL CRUD METHODS: USERS / AKUN STAF
+  // ==========================================
+  const addUser = (newUser: Omit<User, "id">): User => {
     const created: User = {
       ...newUser,
       id: `usr-${Date.now()}`,
@@ -517,26 +610,123 @@ export function useAppStore() {
     return created;
   };
 
+  const updateUser = (id: string, updates: Partial<User>) => {
+    const updated = users.map((u) => (u.id === id ? { ...u, ...updates } : u));
+    setUsers(updated);
+    setStorage(STORAGE_KEYS.USERS, updated);
+  };
+
+  const deleteUser = (id: string) => {
+    const updated = users.filter((u) => u.id !== id);
+    setUsers(updated);
+    setStorage(STORAGE_KEYS.USERS, updated);
+  };
+
+  // ==========================================
+  // FULL CRUD METHODS: RAW MATERIALS / BAHAN
+  // ==========================================
+  const addRawMaterial = (newMat: Omit<RawMaterial, "id">): RawMaterial => {
+    const created: RawMaterial = {
+      ...newMat,
+      id: `mat-${Date.now()}`,
+    };
+    const updated = [...rawMaterials, created];
+    setRawMaterials(updated);
+    setStorage(STORAGE_KEYS.MATERIALS, updated);
+    return created;
+  };
+
+  const updateRawMaterial = (id: string, updates: Partial<RawMaterial>) => {
+    const updated = rawMaterials.map((m) => (m.id === id ? { ...m, ...updates } : m));
+    setRawMaterials(updated);
+    setStorage(STORAGE_KEYS.MATERIALS, updated);
+  };
+
+  const deleteRawMaterial = (id: string) => {
+    const updated = rawMaterials.filter((m) => m.id !== id);
+    setRawMaterials(updated);
+    setStorage(STORAGE_KEYS.MATERIALS, updated);
+  };
+
+  const adjustStock = (stockId: string, newStock: number) => {
+    const updated = stocks.map((s) =>
+      s.id === stockId ? { ...s, currentStock: newStock, updatedAt: new Date().toISOString() } : s
+    );
+    setStocks(updated);
+    setStorage(STORAGE_KEYS.STOCKS, updated);
+  };
+
+  // ==========================================
+  // FULL CRUD METHODS: PROMOTIONS & ARTICLES
+  // ==========================================
+  const addPromotion = (newPromo: Omit<Promotion, "id">): Promotion => {
+    const created: Promotion = {
+      ...newPromo,
+      id: `prm-${Date.now()}`,
+    };
+    const updated = [created, ...promotions];
+    setPromotions(updated);
+    setStorage(STORAGE_KEYS.PROMOTIONS, updated);
+    return created;
+  };
+
+  const updatePromotion = (id: string, updates: Partial<Promotion>) => {
+    const updated = promotions.map((p) => (p.id === id ? { ...p, ...updates } : p));
+    setPromotions(updated);
+    setStorage(STORAGE_KEYS.PROMOTIONS, updated);
+  };
+
+  const deletePromotion = (id: string) => {
+    const updated = promotions.filter((p) => p.id !== id);
+    setPromotions(updated);
+    setStorage(STORAGE_KEYS.PROMOTIONS, updated);
+  };
+
+  const addArticle = (newArt: Omit<Article, "id">): Article => {
+    const created: Article = {
+      ...newArt,
+      id: `art-${Date.now()}`,
+    };
+    const updated = [created, ...articles];
+    setArticles(updated);
+    setStorage(STORAGE_KEYS.ARTICLES, updated);
+    return created;
+  };
+
+  const updateArticle = (id: string, updates: Partial<Article>) => {
+    const updated = articles.map((a) => (a.id === id ? { ...a, ...updates } : a));
+    setArticles(updated);
+    setStorage(STORAGE_KEYS.ARTICLES, updated);
+  };
+
+  const deleteArticle = (id: string) => {
+    const updated = articles.filter((a) => a.id !== id);
+    setArticles(updated);
+    setStorage(STORAGE_KEYS.ARTICLES, updated);
+  };
+
   return {
     isClient,
+    jwtToken,
     outlets,
     users,
     products,
     categories: INITIAL_CATEGORIES,
-    rawMaterials: INITIAL_RAW_MATERIALS,
+    rawMaterials,
     stocks,
     shifts,
     posOrders,
     stockOpnames,
     purchaseOrders,
     attendances,
-    promotions: INITIAL_PROMOTIONS,
-    articles: INITIAL_ARTICLES,
+    promotions,
+    articles,
     cart,
     currentUser,
     currentOutlet,
     switchUser,
     switchOutlet,
+    logout,
     addToCart,
     updateCartQty,
     clearCart,
@@ -549,7 +739,30 @@ export function useAppStore() {
     updatePoStatus,
     clockIn,
     clockOut,
+    // Products CRUD
+    addProduct,
+    updateProduct,
+    deleteProduct,
+    toggleProductAvailability,
+    // Outlets CRUD
     addOutlet,
+    updateOutlet,
+    deleteOutlet,
+    // Users CRUD
     addUser,
+    updateUser,
+    deleteUser,
+    // Raw Materials CRUD
+    addRawMaterial,
+    updateRawMaterial,
+    deleteRawMaterial,
+    adjustStock,
+    // Promos & Articles CRUD
+    addPromotion,
+    updatePromotion,
+    deletePromotion,
+    addArticle,
+    updateArticle,
+    deleteArticle,
   };
 }

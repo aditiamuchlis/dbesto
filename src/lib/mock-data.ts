@@ -72,6 +72,8 @@ export const INITIAL_USERS: User[] = [
   {
     id: "usr-super-01",
     email: "superadmin@dbesto.co.id",
+    username: "superadmin",
+    password: "admin123",
     name: "Aditia Muchlis (HQ Central)",
     phone: "0811-9988-771",
     role: "SUPER_ADMIN",
@@ -82,6 +84,8 @@ export const INITIAL_USERS: User[] = [
   {
     id: "usr-adm-mrg",
     email: "admin.margonda@dbesto.co.id",
+    username: "manager.margonda",
+    password: "manager123",
     name: "Bambang Pamungkas",
     phone: "0812-1122-3344",
     role: "RESTO_ADMIN",
@@ -92,6 +96,8 @@ export const INITIAL_USERS: User[] = [
   {
     id: "usr-kasir-mrg",
     email: "kasir.margonda@dbesto.co.id",
+    username: "kasir.margonda",
+    password: "kasir123",
     name: "Siti Rahmawati",
     phone: "0813-2233-4455",
     role: "CASHIER",
@@ -102,6 +108,8 @@ export const INITIAL_USERS: User[] = [
   {
     id: "usr-staf-mrg",
     email: "staf.margonda@dbesto.co.id",
+    username: "staf.margonda",
+    password: "staf123",
     name: "Ahmad Rizki",
     phone: "0813-9988-1122",
     role: "STAFF",
@@ -112,6 +120,8 @@ export const INITIAL_USERS: User[] = [
   {
     id: "usr-adm-ftm",
     email: "admin.fatmawati@dbesto.co.id",
+    username: "manager.fatmawati",
+    password: "manager123",
     name: "Hendro Wijaya",
     phone: "0812-5566-7788",
     role: "RESTO_ADMIN",
@@ -122,6 +132,8 @@ export const INITIAL_USERS: User[] = [
   {
     id: "usr-kasir-ftm",
     email: "kasir.fatmawati@dbesto.co.id",
+    username: "kasir.fatmawati",
+    password: "kasir123",
     name: "Dewi Sartika",
     phone: "0813-6677-8899",
     role: "CASHIER",

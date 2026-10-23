@@ -19,7 +19,9 @@ import {
   ShieldCheck,
   AlertTriangle,
   CheckCircle2,
+  Compass,
 } from "lucide-react";
+import { GeofenceRadiusMap } from "@/components/common/GeofenceRadiusMap";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -40,7 +42,9 @@ function AdminOutletDetailContent({ params }: PageProps) {
   const target = outlet.monthlyTarget || 100000000;
   const targetProgress = Math.min(100, Math.round((totalOmzet / target) * 100));
 
-  const [activeTab, setActiveTab] = useState<"staf" | "stok" | "transaksi">("staf");
+  const [activeTab, setActiveTab] = useState<"staf" | "stok" | "transaksi" | "geofence">("staf");
+  const [testLat, setTestLat] = useState(outlet.latitude + 0.0001);
+  const [testLng, setTestLng] = useState(outlet.longitude + 0.0001);
 
   return (
     <div className="space-y-8">
@@ -179,6 +183,17 @@ function AdminOutletDetailContent({ params }: PageProps) {
           >
             <ShoppingCart className="w-4 h-4" />
             <span>Tiket POS Cabang ({outletOrders.length})</span>
+          </button>
+          <button
+            onClick={() => setActiveTab("geofence")}
+            className={`pb-3 text-xs font-bold transition border-b-2 cursor-pointer flex items-center gap-2 ${
+              activeTab === "geofence"
+                ? "border-[#D32323] text-[#D32323]"
+                : "border-transparent text-zinc-500 hover:text-zinc-800"
+            }`}
+          >
+            <Compass className="w-4 h-4" />
+            <span>Radar Geofence ({outlet.radiusMeters}m)</span>
           </button>
         </div>
 
@@ -320,6 +335,40 @@ function AdminOutletDetailContent({ params }: PageProps) {
                   )}
                 </tbody>
               </table>
+            </div>
+          )}
+
+          {activeTab === "geofence" && (
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-zinc-50 border border-zinc-200">
+                <div>
+                  <h4 className="text-sm font-black text-zinc-900">
+                    Radar Geofence Kehadiran {outlet.name}
+                  </h4>
+                  <p className="text-xs text-zinc-500 mt-0.5">
+                    Staf hanya dapat melakukan Absensi & Selfie Kehadiran apabila berada dalam radius{" "}
+                    <strong className="text-zinc-900">{outlet.radiusMeters} meter</strong> dari titik sentral cabang.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-bold text-zinc-500 bg-white px-3 py-1.5 rounded-xl border border-zinc-200">
+                    Titik Pusat: {outlet.latitude.toFixed(6)}, {outlet.longitude.toFixed(6)}
+                  </span>
+                </div>
+              </div>
+
+              <GeofenceRadiusMap
+                centerLat={outlet.latitude}
+                centerLng={outlet.longitude}
+                radiusMeters={outlet.radiusMeters}
+                outletName={outlet.name}
+                userLat={testLat}
+                userLng={testLng}
+                onLocationChange={(lat, lng) => {
+                  setTestLat(lat);
+                  setTestLng(lng);
+                }}
+              />
             </div>
           )}
         </div>
