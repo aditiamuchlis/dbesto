@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -16,7 +17,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
-export default function RestoLayout({ children }: { children: React.ReactNode }) {
+function RestoLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { currentOutlet, currentUser, shifts, switchOutlet, outlets } = useAppStore();
 
@@ -144,5 +145,13 @@ export default function RestoLayout({ children }: { children: React.ReactNode })
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6">{children}</main>
     </div>
+  );
+}
+
+export default function RestoLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-zinc-100 flex items-center justify-center p-8">{children}</div>}>
+      <RestoLayoutContent>{children}</RestoLayoutContent>
+    </Suspense>
   );
 }

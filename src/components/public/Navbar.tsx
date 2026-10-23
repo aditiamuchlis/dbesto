@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Search, ShoppingCart, Menu as MenuIcon, X, MapPin } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Search, ShoppingCart, Menu as MenuIcon, X, MapPin, UserCheck } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 
 interface NavbarProps {
@@ -12,19 +13,20 @@ interface NavbarProps {
   onOrderNow?: () => void;
 }
 
-export function Navbar({ onOpenCart, onOpenSearch, onOrderNow }: NavbarProps) {
+function NavbarContent({ onOpenCart, onOpenSearch, onOrderNow }: NavbarProps) {
+  const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { cart, currentOutlet } = useAppStore();
 
   const totalCartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
   const navLinks = [
-    { label: "Home", href: "/", active: true },
-    { label: "Menu", href: "/#menu" },
-    { label: "Promo", href: "/#promo" },
-    { label: "Kemitraan", href: "/#kemitraan" },
-    { label: "Berita", href: "/#berita" },
-    { label: "Tentang Kami", href: "/#tentang-kami" },
+    { label: "Home", href: "/" },
+    { label: "Menu", href: "/menu" },
+    { label: "Promo", href: "/promo" },
+    { label: "Kemitraan", href: "/kemitraan" },
+    { label: "Berita", href: "/berita" },
+    { label: "Tentang Kami", href: "/tentang-kami" },
   ];
 
   return (
@@ -48,22 +50,30 @@ export function Navbar({ onOpenCart, onOpenSearch, onOrderNow }: NavbarProps) {
 
           {/* Navigation Links (Desktop) */}
           <nav className="hidden lg:flex items-center space-x-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.label}
-                href={link.href}
-                className={`text-sm font-semibold transition-colors duration-150 relative py-1 ${
-                  link.active
-                    ? "text-[#D32323] font-bold after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-[#D32323] after:rounded-full"
-                    : "text-zinc-700 hover:text-[#D32323]"
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              const isActive =
+                link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
+              return (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  className={`text-sm font-semibold transition-colors duration-150 relative py-1 ${
+                    isActive
+                      ? "text-[#D32323] font-bold after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-[#D32323] after:rounded-full"
+                      : "text-zinc-700 hover:text-[#D32323]"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
             <Link
-              href="/#outlet"
-              className="text-sm font-medium text-zinc-600 hover:text-[#D32323] flex items-center gap-1"
+              href="/outlet"
+              className={`text-sm font-semibold transition-colors duration-150 relative py-1 flex items-center gap-1 ${
+                pathname === "/outlet"
+                  ? "text-[#D32323] font-bold after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-[#D32323] after:rounded-full"
+                  : "text-zinc-700 hover:text-[#D32323]"
+              }`}
             >
               <MapPin className="w-3.5 h-3.5 text-zinc-400" />
               <span>Outlet</span>
@@ -119,24 +129,32 @@ export function Navbar({ onOpenCart, onOpenSearch, onOrderNow }: NavbarProps) {
       {mobileMenuOpen && (
         <div className="lg:hidden border-t border-zinc-100 bg-white px-4 pt-3 pb-6 shadow-xl animate-in slide-in-from-top duration-200">
           <div className="flex flex-col space-y-3">
-            {navLinks.map((link) => (
-              <Link
-                key={link.label}
-                href={link.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className={`px-3 py-2 rounded-lg text-base font-semibold ${
-                  link.active
-                    ? "bg-red-50 text-[#D32323]"
-                    : "text-zinc-700 hover:bg-zinc-50 hover:text-[#D32323]"
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              const isActive =
+                link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
+              return (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`px-3 py-2 rounded-lg text-base font-semibold ${
+                    isActive
+                      ? "bg-red-50 text-[#D32323] font-bold"
+                      : "text-zinc-700 hover:bg-zinc-50 hover:text-[#D32323]"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
             <Link
-              href="/#outlet"
+              href="/outlet"
               onClick={() => setMobileMenuOpen(false)}
-              className="px-3 py-2 rounded-lg text-base font-medium text-zinc-700 hover:bg-zinc-50 flex items-center gap-2"
+              className={`px-3 py-2 rounded-lg text-base font-semibold flex items-center gap-2 ${
+                pathname === "/outlet"
+                  ? "bg-red-50 text-[#D32323] font-bold"
+                  : "text-zinc-700 hover:bg-zinc-50 hover:text-[#D32323]"
+              }`}
             >
               <MapPin className="w-4 h-4 text-amber-500" />
               <span>Lokasi Cabang ({currentOutlet.name})</span>
@@ -156,5 +174,26 @@ export function Navbar({ onOpenCart, onOpenSearch, onOrderNow }: NavbarProps) {
         </div>
       )}
     </header>
+  );
+}
+
+export function Navbar(props: NavbarProps) {
+  return (
+    <Suspense
+      fallback={
+        <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-zinc-100 h-20 flex items-center justify-between px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+          <div className="relative h-12 w-32">
+            <Image
+              src="/images/logo/dbesto-logo.png"
+              alt="D'Besto"
+              fill
+              className="object-contain"
+            />
+          </div>
+        </header>
+      }
+    >
+      <NavbarContent {...props} />
+    </Suspense>
   );
 }

@@ -50,28 +50,33 @@ export function Footer() {
             <h4 className="text-white font-bold text-sm tracking-wider uppercase">Menu & Brand</h4>
             <ul className="space-y-2">
               <li>
-                <Link href="/#menu" className="hover:text-white transition">
+                <Link href="/menu" className="hover:text-white transition">
                   Katalog Menu
                 </Link>
               </li>
               <li>
-                <Link href="/#promo" className="hover:text-white transition">
+                <Link href="/promo" className="hover:text-white transition">
                   Promo & Voucher
                 </Link>
               </li>
               <li>
-                <Link href="/#outlet" className="hover:text-white transition">
+                <Link href="/outlet" className="hover:text-white transition">
                   Cari Outlet Terdekat
                 </Link>
               </li>
               <li>
-                <Link href="/#kemitraan" className="hover:text-white transition">
+                <Link href="/kemitraan" className="hover:text-white transition">
                   Kemitraan Franchise
                 </Link>
               </li>
               <li>
-                <Link href="/#tentang-kami" className="hover:text-white transition">
+                <Link href="/tentang-kami" className="hover:text-white transition">
                   Tentang D&apos;Besto
+                </Link>
+              </li>
+              <li>
+                <Link href="/kontak" className="hover:text-white transition">
+                  Kontak & Pengaduan
                 </Link>
               </li>
             </ul>

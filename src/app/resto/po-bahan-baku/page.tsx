@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Truck, Plus, CheckCircle2, Clock, PackageCheck, AlertCircle } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import { formatRupiah, formatTanggalIndo } from "@/lib/formatters";
@@ -79,9 +80,19 @@ export default function PoBahanBakuPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 bg-zinc-900 text-white px-4 py-2.5 rounded-2xl text-xs font-bold">
-          <Truck className="w-4 h-4 text-amber-400" />
-          <span>Pasokan Resmi Gudang Pusat HQ</span>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/resto/po-bahan-baku/riwayat"
+            className="inline-flex items-center gap-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-bold px-4 py-2.5 rounded-xl transition"
+          >
+            <Clock className="w-4 h-4 text-zinc-500" />
+            <span>Lihat Riwayat & Penerimaan →</span>
+          </Link>
+
+          <div className="flex items-center gap-2 bg-zinc-900 text-white px-4 py-2.5 rounded-xl text-xs font-bold">
+            <Truck className="w-4 h-4 text-amber-400" />
+            <span>Pasokan HQ</span>
+          </div>
         </div>
       </div>
 

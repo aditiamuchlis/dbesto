@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { X, Trash2, Plus, Minus, ShoppingBag, MapPin, CheckCircle2 } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import { formatRupiah } from "@/lib/formatters";
@@ -302,8 +303,15 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                   onClick={handleCheckout}
                   className="w-full bg-[#D32323] hover:bg-[#B31818] text-white font-bold py-3.5 rounded-full shadow-lg shadow-red-500/25 transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
                 >
-                  Konfirmasi & Pesan Sekarang
+                  Konfirmasi & Pesan Cepat
                 </button>
+                <Link
+                  href="/checkout"
+                  onClick={onClose}
+                  className="block text-center text-xs font-bold text-zinc-600 hover:text-[#D32323] py-1 transition"
+                >
+                  Buka Halaman Checkout Lengkap →
+                </Link>
               </div>
             )}
           </>

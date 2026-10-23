@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { ClipboardList, AlertCircle, CheckCircle2, TrendingDown, ArrowRight } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import { formatRupiah, formatTanggalIndo } from "@/lib/formatters";
@@ -82,11 +83,21 @@ export default function StockOpnamePage() {
           </p>
         </div>
 
-        <div className="bg-red-50 border border-red-200 px-4 py-2.5 rounded-2xl flex items-center gap-3">
-          <TrendingDown className="w-5 h-5 text-red-600" />
-          <div>
-            <span className="text-[10px] text-zinc-500 font-bold uppercase block">Estimasi Nilai Selisih</span>
-            <span className="text-base font-black text-[#D32323]">{formatRupiah(totalCalculatedLoss)}</span>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/resto/stock-opname/riwayat"
+            className="inline-flex items-center gap-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-bold px-4 py-2.5 rounded-xl transition"
+          >
+            <ClipboardList className="w-4 h-4 text-zinc-500" />
+            <span>Lihat Riwayat Audit →</span>
+          </Link>
+
+          <div className="bg-red-50 border border-red-200 px-4 py-2 rounded-2xl flex items-center gap-3">
+            <TrendingDown className="w-5 h-5 text-red-600" />
+            <div>
+              <span className="text-[10px] text-zinc-500 font-bold uppercase block">Estimasi Selisih</span>
+              <span className="text-sm font-black text-[#D32323]">{formatRupiah(totalCalculatedLoss)}</span>
+            </div>
           </div>
         </div>
       </div>

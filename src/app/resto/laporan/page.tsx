@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useAppStore } from "@/lib/store";
 import { formatRupiah, formatTanggalIndo } from "@/lib/formatters";
 import { DollarSign, ShoppingCart, TrendingUp, Package, Printer } from "lucide-react";
@@ -17,6 +18,12 @@ export default function RestoLaporanPage() {
     .reduce((sum, o) => sum + o.totalAmount, 0);
   const nonCashSales = totalSales - cashSales;
 
+  const [todayStr, setTodayStr] = useState("");
+
+  useEffect(() => {
+    setTodayStr(formatTanggalIndo(new Date().toISOString()));
+  }, []);
+
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       {/* Header */}
@@ -27,7 +34,7 @@ export default function RestoLaporanPage() {
           </span>
           <h2 className="text-2xl font-black text-zinc-900">Rekap Penjualan & Inventaris Harian</h2>
           <p className="text-xs text-zinc-500 mt-1">
-            Cabang: <strong>{currentOutlet.name}</strong> • Tanggal: <strong>{formatTanggalIndo(new Date().toISOString())}</strong>
+            Cabang: <strong>{currentOutlet.name}</strong> • Tanggal: <strong>{todayStr || "Hari Ini"}</strong>
           </p>
         </div>
 

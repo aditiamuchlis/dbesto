@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -17,10 +18,14 @@ import {
   ArrowLeft,
   Bell,
   ShieldCheck,
+  Tag,
+  Newspaper,
+  Handshake,
+  Settings,
 } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { currentUser, outlets } = useAppStore();
 
@@ -43,6 +48,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       items: [
         { label: "Master Bahan Baku", href: "/admin/master/bahan-baku", icon: Package },
         { label: "Katalog Menu", href: "/admin/menu", icon: UtensilsCrossed },
+        { label: "Manajemen Promo", href: "/admin/promo", icon: Tag },
+        { label: "Artikel Berita", href: "/admin/berita", icon: Newspaper },
+        { label: "Mitra Franchise", href: "/admin/kemitraan", icon: Handshake },
+        { label: "Pengaturan Sistem", href: "/admin/pengaturan", icon: Settings },
       ],
     },
   ];
@@ -196,5 +205,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <main className="flex-1 p-6 overflow-y-auto">{children}</main>
       </div>
     </div>
+  );
+}
+
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-zinc-100 flex items-center justify-center p-8">{children}</div>}>
+      <AdminLayoutContent>{children}</AdminLayoutContent>
+    </Suspense>
   );
 }

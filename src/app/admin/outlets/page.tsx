@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Store, Plus, MapPin, Phone, Clock, Target, CheckCircle2 } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import { formatRupiah } from "@/lib/formatters";
@@ -122,7 +123,12 @@ export default function AdminOutletsPage() {
 
             <div className="pt-2 border-t border-zinc-100 flex items-center justify-between text-xs text-zinc-500">
               <span>Jam: {outlet.openingTime} - {outlet.closingTime}</span>
-              <span className="font-semibold">{outlet.phone || "-"}</span>
+              <Link
+                href={`/admin/outlets/${outlet.id}`}
+                className="font-bold text-[#D32323] hover:underline"
+              >
+                Lihat Detail Cabang →
+              </Link>
             </div>
           </div>
         ))}
