@@ -55,8 +55,15 @@ export default function AdminLaporanPosPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100">
-              {filtered.map((ord) => (
-                <tr key={ord.id} className="hover:bg-zinc-50/70">
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="p-8 text-center text-zinc-400">
+                    Belum ada riwayat transaksi POS yang tercatat.
+                  </td>
+                </tr>
+              ) : (
+                filtered.map((ord) => (
+                  <tr key={ord.id} className="hover:bg-zinc-50/70">
                   <td className="p-3.5 font-mono font-bold text-zinc-900">{ord.invoiceNumber}</td>
                   <td className="p-3.5 font-semibold text-zinc-700">{ord.outletName}</td>
                   <td className="p-3.5 text-zinc-600">{ord.cashierName || "Kasir"}</td>
@@ -78,7 +85,8 @@ export default function AdminLaporanPosPage() {
                     </span>
                   </td>
                 </tr>
-              ))}
+                ))
+              )}
             </tbody>
           </table>
         </div>

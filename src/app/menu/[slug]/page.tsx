@@ -38,7 +38,34 @@ function ProductDetailContent({ params }: PageProps) {
   const [selectedSpicy, setSelectedSpicy] = useState("Original Crispy");
   const [isAdded, setIsAdded] = useState(false);
 
-  const product = products.find((p) => p.slug === resolvedParams.slug) || products[0];
+  const product = products.find((p) => p.slug === resolvedParams.slug);
+
+  if (!product) {
+    return (
+      <div className="min-h-screen flex flex-col bg-[#FDFBF7]">
+        <Navbar
+          onOpenCart={() => setIsCartOpen(true)}
+          onOpenSearch={() => {}}
+          onOrderNow={() => setIsCartOpen(true)}
+        />
+        <main className="flex-1 flex items-center justify-center p-8">
+          <div className="max-w-md w-full bg-white p-8 rounded-3xl border border-zinc-200 text-center space-y-4 shadow-sm">
+            <h2 className="text-xl font-bold text-zinc-900">Menu Tidak Ditemukan</h2>
+            <p className="text-xs text-zinc-500">
+              Menu yang Anda cari mungkin sudah tidak tersedia atau belum didaftarkan di katalog.
+            </p>
+            <Link
+              href="/menu"
+              className="inline-block bg-[#D32323] hover:bg-[#B31818] text-white text-xs font-bold px-6 py-2.5 rounded-full transition shadow-md"
+            >
+              ← Kembali ke Katalog Menu
+            </Link>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   const handleAddToCart = () => {
     const customNotes = `${selectedCut} • ${selectedSpicy}`;

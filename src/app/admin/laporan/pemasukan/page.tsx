@@ -120,23 +120,32 @@ export default function LaporanPemasukanPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100">
-              {filteredOrders.map((o) => (
-                <tr key={o.id} className="hover:bg-zinc-50/70">
-                  <td className="p-3.5 font-mono font-bold text-zinc-900">{o.invoiceNumber}</td>
-                  <td className="p-3.5 font-semibold text-zinc-700">{o.outletName}</td>
-                  <td className="p-3.5 text-zinc-500">{formatTanggalIndo(o.createdAt, true)}</td>
-                  <td className="p-3.5">{o.customerName}</td>
-                  <td className="p-3.5">{formatRupiah(o.subtotal)}</td>
-                  <td className="p-3.5">{formatRupiah(o.taxAmount)}</td>
-                  <td className="p-3.5 font-black text-[#D32323]">{formatRupiah(o.totalAmount)}</td>
-                  <td className="p-3.5 font-bold text-zinc-700">{o.paymentMethod}</td>
-                  <td className="p-3.5">
-                    <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]">
-                      {o.paymentStatus}
-                    </span>
+              {filteredOrders.length === 0 ? (
+                <tr>
+                  <td colSpan={9} className="p-8 text-center text-zinc-400">
+                    <p className="font-semibold text-zinc-500">Belum ada transaksi pendapatan</p>
+                    <p className="text-[11px] mt-1 text-zinc-400">Transaksi dari POS kasir resto akan tercatat otomatis di sini.</p>
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filteredOrders.map((o) => (
+                  <tr key={o.id} className="hover:bg-zinc-50/70">
+                    <td className="p-3.5 font-mono font-bold text-zinc-900">{o.invoiceNumber}</td>
+                    <td className="p-3.5 font-semibold text-zinc-700">{o.outletName}</td>
+                    <td className="p-3.5 text-zinc-500">{formatTanggalIndo(o.createdAt, true)}</td>
+                    <td className="p-3.5">{o.customerName}</td>
+                    <td className="p-3.5">{formatRupiah(o.subtotal)}</td>
+                    <td className="p-3.5">{formatRupiah(o.taxAmount)}</td>
+                    <td className="p-3.5 font-black text-[#D32323]">{formatRupiah(o.totalAmount)}</td>
+                    <td className="p-3.5 font-bold text-zinc-700">{o.paymentMethod}</td>
+                    <td className="p-3.5">
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]">
+                        {o.paymentStatus}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

@@ -20,8 +20,15 @@ import {
 import { Product } from "@/lib/types";
 
 export default function AdminMenuPage() {
-  const { products, categories, addProduct, updateProduct, deleteProduct, toggleProductAvailability } =
-    useAppStore();
+  const {
+    products,
+    categories,
+    addProduct,
+    updateProduct,
+    deleteProduct,
+    toggleProductAvailability,
+    seedOfficialMenu,
+  } = useAppStore();
 
   const [search, setSearch] = useState("");
   const [selectedCat, setSelectedCat] = useState("all");
@@ -189,84 +196,135 @@ export default function AdminMenuPage() {
         </div>
       </div>
 
-      {/* Products Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {filtered.map((p) => (
-          <div
-            key={p.id}
-            className="bg-white rounded-3xl border border-zinc-200 shadow-sm overflow-hidden flex flex-col justify-between group hover:shadow-md transition"
-          >
-            <div>
-              <div className="relative aspect-[4/3] bg-zinc-100">
-                <Image
-                  src={p.image || "/images/menu/fried-chicken.jpg"}
-                  alt={p.name}
-                  fill
-                  className="object-cover group-hover:scale-105 transition duration-300"
-                  unoptimized
-                />
-                {p.badge && (
-                  <span className="absolute top-3 left-3 bg-[#D32323] text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase shadow-xs">
-                    {p.badge}
-                  </span>
-                )}
-                <span
-                  className={`absolute top-3 right-3 text-[10px] font-extrabold px-2 py-0.5 rounded-full shadow-xs ${
-                    p.isAvailable
-                      ? "bg-emerald-600 text-white"
-                      : "bg-zinc-800 text-zinc-200"
-                  }`}
-                >
-                  {p.isAvailable ? "Tersedia" : "Habis"}
-                </span>
-              </div>
-
-              <div className="p-5 space-y-1.5">
-                <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wide">
-                  {p.categoryName}
-                </span>
-                <h3 className="text-sm font-bold text-zinc-900 leading-snug line-clamp-1">{p.name}</h3>
-                <p className="text-xs text-zinc-500 line-clamp-2 min-h-[32px]">
-                  {p.description || "Menu ayam lezat resep khas D'Besto."}
-                </p>
-                <p className="text-base font-black text-[#D32323] pt-1">{formatRupiah(p.price)}</p>
-              </div>
-            </div>
-
-            {/* Action Bar */}
-            <div className="p-4 pt-2 border-t border-zinc-100 flex items-center justify-between text-xs">
-              <button
-                onClick={() => toggleProductAvailability(p.id)}
-                className={`flex items-center gap-1 font-bold text-[11px] px-2.5 py-1 rounded-lg border transition ${
-                  p.isAvailable
-                    ? "text-emerald-700 bg-emerald-50 border-emerald-200 hover:bg-emerald-100"
-                    : "text-zinc-600 bg-zinc-100 border-zinc-200 hover:bg-zinc-200"
-                }`}
-                title="Klik untuk ubah status stok"
-              >
-                <span>{p.isAvailable ? "✓ Siap Jual" : "✕ Stok Habis"}</span>
-              </button>
-
-              <div className="flex items-center gap-1.5">
-                <button
-                  onClick={() => openEditModal(p)}
-                  className="p-1.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 text-zinc-700 transition"
-                  title="Edit Menu"
-                >
-                  <Edit2 className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={() => handleDelete(p)}
-                  className="p-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 transition"
-                  title="Hapus Menu"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
+      {/* Products Grid or Empty State */}
+      {filtered.length === 0 ? (
+        <div className="bg-white rounded-3xl border border-zinc-200 p-12 text-center shadow-xs">
+          <div className="w-16 h-16 rounded-full bg-zinc-100 flex items-center justify-center mx-auto text-zinc-400 mb-4">
+            <UtensilsCrossed className="w-8 h-8" />
           </div>
-        ))}
-      </div>
+          {products.length === 0 ? (
+            <>
+              <h3 className="text-base font-bold text-zinc-800 mb-1">Katalog Menu Masih Kosong</h3>
+              <p className="text-xs text-zinc-500 max-w-md mx-auto mb-6">
+                Belum ada produk menu yang terdaftar. Anda dapat menambahkan menu baru secara manual atau memuat katalog menu resmi standar D&apos;Besto.
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                <button
+                  onClick={openAddModal}
+                  className="inline-flex items-center gap-2 bg-[#D32323] hover:bg-[#B31818] text-white font-bold text-xs px-5 py-2.5 rounded-full transition shadow-xs cursor-pointer"
+                >
+                  <Plus className="w-4 h-4 stroke-[3]" />
+                  <span>Tambah Menu Pertama</span>
+                </button>
+                <button
+                  onClick={() => {
+                    seedOfficialMenu();
+                    setFeedback("Katalog menu resmi D'Besto berhasil dimuat!");
+                    setTimeout(() => setFeedback(null), 3000);
+                  }}
+                  className="inline-flex items-center gap-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-bold text-xs px-5 py-2.5 rounded-full transition cursor-pointer"
+                >
+                  <span>Muat Katalog Menu Resmi</span>
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <h3 className="text-base font-bold text-zinc-800 mb-1">Menu Tidak Ditemukan</h3>
+              <p className="text-xs text-zinc-500 max-w-md mx-auto mb-4">
+                Tidak ada menu yang sesuai dengan kata kunci &quot;{search}&quot; atau kategori yang dipilih.
+              </p>
+              <button
+                onClick={() => {
+                  setSearch("");
+                  setSelectedCat("all");
+                }}
+                className="text-xs font-bold text-[#D32323] hover:underline cursor-pointer"
+              >
+                Reset Filter & Pencarian
+              </button>
+            </>
+          )}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {filtered.map((p) => (
+            <div
+              key={p.id}
+              className="bg-white rounded-3xl border border-zinc-200 shadow-sm overflow-hidden flex flex-col justify-between group hover:shadow-md transition"
+            >
+              <div>
+                <div className="relative aspect-[4/3] bg-zinc-100">
+                  <Image
+                    src={p.image || "/images/menu/fried-chicken.jpg"}
+                    alt={p.name}
+                    fill
+                    className="object-cover group-hover:scale-105 transition duration-300"
+                    unoptimized
+                  />
+                  {p.badge && (
+                    <span className="absolute top-3 left-3 bg-[#D32323] text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase shadow-xs">
+                      {p.badge}
+                    </span>
+                  )}
+                  <span
+                    className={`absolute top-3 right-3 text-[10px] font-extrabold px-2 py-0.5 rounded-full shadow-xs ${
+                      p.isAvailable
+                        ? "bg-emerald-600 text-white"
+                        : "bg-zinc-800 text-zinc-200"
+                    }`}
+                  >
+                    {p.isAvailable ? "Tersedia" : "Habis"}
+                  </span>
+                </div>
+
+                <div className="p-5 space-y-1.5">
+                  <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wide">
+                    {p.categoryName}
+                  </span>
+                  <h3 className="text-sm font-bold text-zinc-900 leading-snug line-clamp-1">{p.name}</h3>
+                  <p className="text-xs text-zinc-500 line-clamp-2 min-h-[32px]">
+                    {p.description || "Menu ayam lezat resep khas D'Besto."}
+                  </p>
+                  <p className="text-base font-black text-[#D32323] pt-1">{formatRupiah(p.price)}</p>
+                </div>
+              </div>
+
+              {/* Action Bar */}
+              <div className="p-4 pt-2 border-t border-zinc-100 flex items-center justify-between text-xs">
+                <button
+                  onClick={() => toggleProductAvailability(p.id)}
+                  className={`flex items-center gap-1 font-bold text-[11px] px-2.5 py-1 rounded-lg border transition ${
+                    p.isAvailable
+                      ? "text-emerald-700 bg-emerald-50 border-emerald-200 hover:bg-emerald-100"
+                      : "text-zinc-600 bg-zinc-100 border-zinc-200 hover:bg-zinc-200"
+                  }`}
+                  title="Klik untuk ubah status stok"
+                >
+                  <span>{p.isAvailable ? "✓ Siap Jual" : "✕ Stok Habis"}</span>
+                </button>
+
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => openEditModal(p)}
+                    className="p-1.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 text-zinc-700 transition"
+                    title="Edit Menu"
+                  >
+                    <Edit2 className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(p)}
+                    className="p-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 transition"
+                    title="Hapus Menu"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* CRUD Modal Form (Create / Edit) */}
       {isModalOpen && (

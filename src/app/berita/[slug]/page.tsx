@@ -29,16 +29,34 @@ function ArticleDetailContent({ params }: PageProps) {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
 
-  const article =
-    articles.find((a) => a.slug === resolvedParams.slug) ||
-    articles[0] || {
-      title: "Rahasia Bumbu Marinasi D'Besto yang Meresap Hingga ke Tulang",
-      summary: "D'Besto memadukan rempah nusantara pilihan dengan proses marinasi dingin higienis.",
-      content:
-        "Di balik renyahnya kulit ayam D'Besto, tersimpan perpaduan resep rahasia rempah alami nusantara. Proses marinasi dingin menjamin bumbu meresap sempurna hingga serat daging terdalam...",
-      coverImage: "/images/hero/hero-banner-hd.jpg",
-      publishedAt: "2026-10-18T10:00:00Z",
-    };
+  const article = articles.find((a) => a.slug === resolvedParams.slug);
+
+  if (!article) {
+    return (
+      <div className="min-h-screen flex flex-col bg-[#FDFBF7]">
+        <Navbar
+          onOpenCart={() => setIsCartOpen(true)}
+          onOpenSearch={() => {}}
+          onOrderNow={() => setIsCartOpen(true)}
+        />
+        <main className="flex-1 flex items-center justify-center p-8">
+          <div className="max-w-md w-full bg-white p-8 rounded-3xl border border-zinc-200 text-center space-y-4 shadow-sm">
+            <h2 className="text-xl font-bold text-zinc-900">Artikel Tidak Ditemukan</h2>
+            <p className="text-xs text-zinc-500">
+              Artikel berita yang Anda cari tidak tersedia atau belum dipublikasikan.
+            </p>
+            <Link
+              href="/berita"
+              className="inline-block bg-[#D32323] hover:bg-[#B31818] text-white text-xs font-bold px-6 py-2.5 rounded-full transition shadow-md"
+            >
+              ← Kembali ke Kabar & Berita
+            </Link>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   const handleCopyLink = () => {
     if (typeof window !== "undefined") {

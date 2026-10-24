@@ -30,35 +30,6 @@ export default function PromoPage() {
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
-  const extraPromos = [
-    {
-      id: "promo-weekend-03",
-      title: "Weekend Crispy Feast - 4 Ayam + 2 Nasi + 2 Es Teh",
-      slug: "weekend-crispy-feast",
-      description: "Makan puas bersama keluarga di akhir pekan! Dapatkan 4 potong ayam krispi pilihan, 2 porsi nasi pulen hangat, dan 2 gelas es teh manis segar dengan harga hemat Rp 58.000 (Harga normal Rp 72.000).",
-      bannerImage: "/images/hero/hero-banner-hd.jpg",
-      startDate: "2026-10-01",
-      endDate: "2026-12-31",
-      code: "WEEKENDSERU",
-      discountValue: "HEMAT 25%",
-      isActive: true,
-    },
-    {
-      id: "promo-cashback-04",
-      title: "Cashback QRIS 30% Spesial Pembayaran Digital",
-      slug: "cashback-qris-30",
-      description: "Bayar pesanan dine-in atau takeaway menggunakan QRIS (BCA, Mandiri, GoPay, ShopeePay, OVO) di kasir resto D'Besto dan dapatkan cashback langsung hingga Rp 10.000 tanpa minimal transaksi.",
-      bannerImage: "/images/menu/burger.jpg",
-      startDate: "2026-10-01",
-      endDate: "2026-11-15",
-      code: "QRISBESTO",
-      discountValue: "CASHBACK 30%",
-      isActive: true,
-    },
-  ];
-
-  const allPromos = [...promotions, ...extraPromos];
-
   return (
     <div className="min-h-screen flex flex-col bg-[#FDFBF7]">
       <Navbar
@@ -95,14 +66,25 @@ export default function PromoPage() {
 
       {/* Promo Grid */}
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full space-y-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {allPromos.map((promo) => {
-            const isCopied = copiedCode === promo.code;
-            return (
-              <div
-                key={promo.id}
-                className="bg-white rounded-3xl border border-zinc-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group"
-              >
+        {promotions.length === 0 ? (
+          <div className="bg-white rounded-3xl p-12 text-center border border-zinc-200 space-y-4 max-w-md mx-auto my-8">
+            <div className="w-16 h-16 bg-red-50 text-[#D32323] rounded-full flex items-center justify-center mx-auto">
+              <Sparkles className="w-8 h-8 text-[#D32323]" />
+            </div>
+            <h3 className="text-lg font-bold text-zinc-900">Belum Ada Promo Aktif</h3>
+            <p className="text-xs text-zinc-500">
+              Nantikan program promo, kupon diskon, dan voucher hemat berikutnya dari D&apos;Besto!
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {promotions.map((promo) => {
+              const isCopied = copiedCode === promo.code;
+              return (
+                <div
+                  key={promo.id}
+                  className="bg-white rounded-3xl border border-zinc-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group"
+                >
                 <div>
                   {/* Banner Image */}
                   <div className="relative aspect-[16/9] w-full bg-zinc-100 overflow-hidden">
@@ -196,6 +178,7 @@ export default function PromoPage() {
             );
           })}
         </div>
+      )}
 
         {/* Terms & Conditions Notice */}
         <div className="bg-white rounded-3xl border border-zinc-200 p-6 sm:p-8 space-y-4">

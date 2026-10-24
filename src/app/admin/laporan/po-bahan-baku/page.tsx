@@ -63,63 +63,72 @@ export default function AdminLaporanPoPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100">
-              {filtered.map((po) => (
-                <tr key={po.id} className="hover:bg-zinc-50/70">
-                  <td className="p-3.5 font-mono font-bold text-zinc-900">{po.poNumber}</td>
-                  <td className="p-3.5 font-semibold text-zinc-800">{po.outletName}</td>
-                  <td className="p-3.5 text-zinc-500">{formatTanggalIndo(po.orderDate, true)}</td>
-                  <td className="p-3.5">
-                    <ul className="space-y-0.5">
-                      {po.items.map((it) => (
-                        <li key={it.id} className="text-zinc-700">
-                          • {it.materialName}: <strong>{it.orderedQty} {it.unit}</strong> ({formatRupiah(it.subtotal)})
-                        </li>
-                      ))}
-                    </ul>
-                  </td>
-                  <td className="p-3.5 font-black text-[#D32323]">{formatRupiah(po.totalAmount)}</td>
-                  <td className="p-3.5">
-                    <span
-                      className={`px-2.5 py-1 rounded-full font-bold text-[10px] ${
-                        po.status === "RECEIVED"
-                          ? "bg-emerald-100 text-emerald-800"
-                          : po.status === "APPROVED_BY_HQ" || po.status === "IN_DELIVERY"
-                          ? "bg-blue-100 text-blue-800"
-                          : "bg-amber-100 text-amber-800"
-                      }`}
-                    >
-                      {po.status}
-                    </span>
-                  </td>
-                  <td className="p-3.5 text-center">
-                    {po.status === "SUBMITTED" ? (
-                      <div className="flex items-center justify-center gap-2">
-                        <button
-                          onClick={() => updatePoStatus(po.id, "APPROVED_BY_HQ")}
-                          className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs transition shadow-xs cursor-pointer"
-                        >
-                          Approve PO
-                        </button>
-                        <button
-                          onClick={() => updatePoStatus(po.id, "REJECTED")}
-                          className="px-2.5 py-1 bg-red-100 hover:bg-red-200 text-red-700 font-bold rounded-lg text-xs transition cursor-pointer"
-                        >
-                          Tolak
-                        </button>
-                      </div>
-                    ) : po.status === "APPROVED_BY_HQ" ? (
-                      <button
-                        onClick={() => updatePoStatus(po.id, "IN_DELIVERY")}
-                        className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-xs transition shadow-xs cursor-pointer"
-                      >
-                        Kirim Truk Logistik
-                      </button>
-                    ) : (
-                      <span className="text-[11px] text-zinc-400 font-medium">Tuntas</span>
-                    )}
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="p-8 text-center text-zinc-400">
+                    <p className="font-semibold text-zinc-500">Belum ada pengajuan Purchase Order (PO)</p>
+                    <p className="text-[11px] mt-1 text-zinc-400">PO bahan baku yang diajukan oleh manager resto akan muncul di sini untuk disetujui HQ.</p>
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filtered.map((po) => (
+                  <tr key={po.id} className="hover:bg-zinc-50/70">
+                    <td className="p-3.5 font-mono font-bold text-zinc-900">{po.poNumber}</td>
+                    <td className="p-3.5 font-semibold text-zinc-800">{po.outletName}</td>
+                    <td className="p-3.5 text-zinc-500">{formatTanggalIndo(po.orderDate, true)}</td>
+                    <td className="p-3.5">
+                      <ul className="space-y-0.5">
+                        {po.items.map((it) => (
+                          <li key={it.id} className="text-zinc-700">
+                            • {it.materialName}: <strong>{it.orderedQty} {it.unit}</strong> ({formatRupiah(it.subtotal)})
+                          </li>
+                        ))}
+                      </ul>
+                    </td>
+                    <td className="p-3.5 font-black text-[#D32323]">{formatRupiah(po.totalAmount)}</td>
+                    <td className="p-3.5">
+                      <span
+                        className={`px-2.5 py-1 rounded-full font-bold text-[10px] ${
+                          po.status === "RECEIVED"
+                            ? "bg-emerald-100 text-emerald-800"
+                            : po.status === "APPROVED_BY_HQ" || po.status === "IN_DELIVERY"
+                            ? "bg-blue-100 text-blue-800"
+                            : "bg-amber-100 text-amber-800"
+                        }`}
+                      >
+                        {po.status}
+                      </span>
+                    </td>
+                    <td className="p-3.5 text-center">
+                      {po.status === "SUBMITTED" ? (
+                        <div className="flex items-center justify-center gap-2">
+                          <button
+                            onClick={() => updatePoStatus(po.id, "APPROVED_BY_HQ")}
+                            className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs transition shadow-xs cursor-pointer"
+                          >
+                            Approve PO
+                          </button>
+                          <button
+                            onClick={() => updatePoStatus(po.id, "REJECTED")}
+                            className="px-2.5 py-1 bg-red-100 hover:bg-red-200 text-red-700 font-bold rounded-lg text-xs transition cursor-pointer"
+                          >
+                            Tolak
+                          </button>
+                        </div>
+                      ) : po.status === "APPROVED_BY_HQ" ? (
+                        <button
+                          onClick={() => updatePoStatus(po.id, "IN_DELIVERY")}
+                          className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-xs transition shadow-xs cursor-pointer"
+                        >
+                          Kirim Truk Logistik
+                        </button>
+                      ) : (
+                        <span className="text-[11px] text-zinc-400 font-medium">Tuntas</span>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

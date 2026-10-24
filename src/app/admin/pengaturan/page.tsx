@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useAppStore } from "@/lib/store";
 import {
   Settings,
   Save,
@@ -15,6 +16,20 @@ import {
 } from "lucide-react";
 
 export default function AdminPengaturanPage() {
+  const {
+    products,
+    rawMaterials,
+    posOrders,
+    stockOpnames,
+    purchaseOrders,
+    attendances,
+    promotions,
+    articles,
+    clearAllDummyData,
+    seedOfficialMenu,
+    seedOfficialMaterials,
+  } = useAppStore();
+
   const [saved, setSaved] = useState(false);
   const [settings, setSettings] = useState({
     brandName: "D'Besto Chicken & Burger",
@@ -201,6 +216,99 @@ export default function AdminPengaturanPage() {
           </button>
         </div>
       </form>
+
+      {/* Manajemen Status Data & Reset Bersih */}
+      <div className="bg-white rounded-3xl border border-zinc-200 p-6 sm:p-8 shadow-xs space-y-6">
+        <div>
+          <span className="text-xs font-extrabold text-[#D32323] uppercase tracking-wider block">
+            MANAJEMEN DATABASE & CLEAN SLATE
+          </span>
+          <h3 className="text-lg font-black text-zinc-900 mt-1">
+            Status Data Operasional & Pembersihan Total
+          </h3>
+          <p className="text-xs text-zinc-500 mt-1">
+            Monitor jumlah data aktif di sistem saat ini dan bersihkan semua data operasional jika diperlukan.
+          </p>
+        </div>
+
+        {/* Real-time Data Counts */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+          <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-100">
+            <span className="text-[11px] font-bold text-zinc-500 block">Katalog Menu:</span>
+            <p className="text-xl font-black text-zinc-900 mt-0.5">{products.length} <span className="text-xs font-normal text-zinc-400">item</span></p>
+          </div>
+          <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-100">
+            <span className="text-[11px] font-bold text-zinc-500 block">Bahan Baku (BOM):</span>
+            <p className="text-xl font-black text-zinc-900 mt-0.5">{rawMaterials.length} <span className="text-xs font-normal text-zinc-400">item</span></p>
+          </div>
+          <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-100">
+            <span className="text-[11px] font-bold text-zinc-500 block">Order Kasir POS:</span>
+            <p className="text-xl font-black text-zinc-900 mt-0.5">{posOrders.length} <span className="text-xs font-normal text-zinc-400">transaksi</span></p>
+          </div>
+          <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-100">
+            <span className="text-[11px] font-bold text-zinc-500 block">Purchase Orders:</span>
+            <p className="text-xl font-black text-zinc-900 mt-0.5">{purchaseOrders.length} <span className="text-xs font-normal text-zinc-400">pengajuan</span></p>
+          </div>
+          <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-100">
+            <span className="text-[11px] font-bold text-zinc-500 block">Stock Opname:</span>
+            <p className="text-xl font-black text-zinc-900 mt-0.5">{stockOpnames.length} <span className="text-xs font-normal text-zinc-400">laporan</span></p>
+          </div>
+          <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-100">
+            <span className="text-[11px] font-bold text-zinc-500 block">Absensi Staf:</span>
+            <p className="text-xl font-black text-zinc-900 mt-0.5">{attendances.length} <span className="text-xs font-normal text-zinc-400">record</span></p>
+          </div>
+          <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-100">
+            <span className="text-[11px] font-bold text-zinc-500 block">Promosi Aktif:</span>
+            <p className="text-xl font-black text-zinc-900 mt-0.5">{promotions.length} <span className="text-xs font-normal text-zinc-400">promo</span></p>
+          </div>
+          <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-100">
+            <span className="text-[11px] font-bold text-zinc-500 block">Artikel Berita:</span>
+            <p className="text-xl font-black text-zinc-900 mt-0.5">{articles.length} <span className="text-xs font-normal text-zinc-400">artikel</span></p>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="pt-4 border-t border-zinc-100 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                seedOfficialMenu();
+                setSaved(true);
+                setTimeout(() => setSaved(false), 3000);
+              }}
+              className="px-4 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-bold rounded-xl transition cursor-pointer"
+            >
+              Muat Menu Resmi D&apos;Besto
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                seedOfficialMaterials();
+                setSaved(true);
+                setTimeout(() => setSaved(false), 3000);
+              }}
+              className="px-4 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-bold rounded-xl transition cursor-pointer"
+            >
+              Muat Bahan Baku Resmi
+            </button>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              if (confirm("Apakah Anda yakin ingin MENGHAPUS SEMUA DATA OPERASIONAL (produk, transaksi POS, PO, stok opname, absensi)? Tindakan ini akan mengosongkan data secara permanen.")) {
+                clearAllDummyData();
+                setSaved(true);
+                setTimeout(() => setSaved(false), 3000);
+              }
+            }}
+            className="px-5 py-2.5 bg-red-50 hover:bg-red-100 text-[#D32323] border border-red-200 text-xs font-bold rounded-xl transition cursor-pointer"
+          >
+            Bersihkan Semua Data (0 Data)
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

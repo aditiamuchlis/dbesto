@@ -67,52 +67,61 @@ export default function AdminStockOpnamePage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100">
-              {filtered.map((op) => (
-                <tr key={op.id} className="hover:bg-zinc-50/70">
-                  <td className="p-3.5 font-mono font-bold text-zinc-900">{op.opnameNumber}</td>
-                  <td className="p-3.5 font-semibold text-zinc-800">{op.outletName}</td>
-                  <td className="p-3.5 text-zinc-500">{formatTanggalIndo(op.opnameDate, true)}</td>
-                  <td className="p-3.5 text-zinc-700">{op.createdByName}</td>
-                  <td className="p-3.5">
-                    <ul className="space-y-1">
-                      {op.items.map((it) => (
-                        <li key={it.id} className="text-zinc-700">
-                          <strong>{it.materialName}:</strong> {it.physicalStock} / {it.systemStock} (
-                          <span className={it.difference < 0 ? "text-red-600 font-bold" : "text-zinc-500"}>
-                            {it.difference > 0 ? `+${it.difference}` : it.difference} {it.unit}
-                          </span>
-                          ) {it.reason && `— ${it.reason}`}
-                        </li>
-                      ))}
-                    </ul>
-                  </td>
-                  <td className="p-3.5 font-black text-red-600">{formatRupiah(op.totalLossAmount)}</td>
-                  <td className="p-3.5 text-zinc-500 max-w-xs truncate">{op.notes || "-"}</td>
-                  <td className="p-3.5">
-                    <span
-                      className={`px-2.5 py-1 rounded-full font-bold text-[10px] ${
-                        op.status === "APPROVED"
-                          ? "bg-emerald-100 text-emerald-800"
-                          : "bg-amber-100 text-amber-800"
-                      }`}
-                    >
-                      {op.status}
-                    </span>
-                  </td>
-                  <td className="p-3.5 text-center">
-                    {op.status === "SUBMITTED" ? (
-                      <button
-                        onClick={() => approveStockOpname(op.id)}
-                        className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs transition shadow-xs cursor-pointer"
-                      >
-                        Approve Penyesuaian
-                      </button>
-                    ) : (
-                      <span className="text-[11px] text-zinc-400 font-medium">Telah Di-Approve</span>
-                    )}
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="p-8 text-center text-zinc-400">
+                    <p className="font-semibold text-zinc-500">Belum ada rekonsiliasi Stock Opname</p>
+                    <p className="text-[11px] mt-1 text-zinc-400">Laporan selisih fisik bahan baku dari resto akan tampil di sini untuk verifikasi penyesuaian stok sistem.</p>
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filtered.map((op) => (
+                  <tr key={op.id} className="hover:bg-zinc-50/70">
+                    <td className="p-3.5 font-mono font-bold text-zinc-900">{op.opnameNumber}</td>
+                    <td className="p-3.5 font-semibold text-zinc-800">{op.outletName}</td>
+                    <td className="p-3.5 text-zinc-500">{formatTanggalIndo(op.opnameDate, true)}</td>
+                    <td className="p-3.5 text-zinc-700">{op.createdByName}</td>
+                    <td className="p-3.5">
+                      <ul className="space-y-1">
+                        {op.items.map((it) => (
+                          <li key={it.id} className="text-zinc-700">
+                            <strong>{it.materialName}:</strong> {it.physicalStock} / {it.systemStock} (
+                            <span className={it.difference < 0 ? "text-red-600 font-bold" : "text-zinc-500"}>
+                              {it.difference > 0 ? `+${it.difference}` : it.difference} {it.unit}
+                            </span>
+                            ) {it.reason && `— ${it.reason}`}
+                          </li>
+                        ))}
+                      </ul>
+                    </td>
+                    <td className="p-3.5 font-black text-red-600">{formatRupiah(op.totalLossAmount)}</td>
+                    <td className="p-3.5 text-zinc-500 max-w-xs truncate">{op.notes || "-"}</td>
+                    <td className="p-3.5">
+                      <span
+                        className={`px-2.5 py-1 rounded-full font-bold text-[10px] ${
+                          op.status === "APPROVED"
+                            ? "bg-emerald-100 text-emerald-800"
+                            : "bg-amber-100 text-amber-800"
+                        }`}
+                      >
+                        {op.status}
+                      </span>
+                    </td>
+                    <td className="p-3.5 text-center">
+                      {op.status === "SUBMITTED" ? (
+                        <button
+                          onClick={() => approveStockOpname(op.id)}
+                          className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs transition shadow-xs cursor-pointer"
+                        >
+                          Approve Penyesuaian
+                        </button>
+                      ) : (
+                        <span className="text-[11px] text-zinc-400 font-medium">Telah Di-Approve</span>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

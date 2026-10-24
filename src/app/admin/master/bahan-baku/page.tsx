@@ -7,7 +7,7 @@ import { Package, Plus, Edit2, Trash2, CheckCircle2, X, Search, AlertTriangle } 
 import { RawMaterial } from "@/lib/types";
 
 export default function MasterBahanBakuPage() {
-  const { rawMaterials, addRawMaterial, updateRawMaterial, deleteRawMaterial } = useAppStore();
+  const { rawMaterials, addRawMaterial, updateRawMaterial, deleteRawMaterial, seedOfficialMaterials } = useAppStore();
 
   const [search, setSearch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -125,51 +125,99 @@ export default function MasterBahanBakuPage() {
         />
       </div>
 
-      {/* Raw Materials Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {filtered.map((mat) => (
-          <div
-            key={mat.id}
-            className="bg-white p-5 rounded-3xl border border-zinc-200 shadow-sm space-y-3 flex flex-col justify-between hover:shadow-md transition"
-          >
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono font-bold text-zinc-600 bg-zinc-100 px-2 py-0.5 rounded">
-                  {mat.code}
-                </span>
-                <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">
-                  AKTIF
-                </span>
-              </div>
-              <h3 className="text-sm font-bold text-zinc-900 leading-snug line-clamp-1">{mat.name}</h3>
-              <p className="text-base font-black text-[#D32323]">
-                {formatRupiah(mat.standardCost)}{" "}
-                <span className="text-xs font-normal text-zinc-500">/ {mat.unit}</span>
-              </p>
-              <p className="text-[11px] text-zinc-500 pt-1">
-                Min. Stock Alert: <strong>{mat.minStockAlert} {mat.unit}</strong>
-              </p>
-            </div>
-
-            <div className="pt-2 border-t border-zinc-100 flex items-center justify-end gap-1.5">
-              <button
-                onClick={() => openEditModal(mat)}
-                className="p-1.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 text-zinc-700 transition"
-                title="Edit Bahan"
-              >
-                <Edit2 className="w-3.5 h-3.5" />
-              </button>
-              <button
-                onClick={() => handleDelete(mat)}
-                className="p-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 transition"
-                title="Hapus Bahan"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
-            </div>
+      {/* Raw Materials Grid or Empty State */}
+      {filtered.length === 0 ? (
+        <div className="bg-white rounded-3xl border border-zinc-200 p-12 text-center shadow-xs">
+          <div className="w-16 h-16 rounded-full bg-zinc-100 flex items-center justify-center mx-auto text-zinc-400 mb-4">
+            <Package className="w-8 h-8" />
           </div>
-        ))}
-      </div>
+          {rawMaterials.length === 0 ? (
+            <>
+              <h3 className="text-base font-bold text-zinc-800 mb-1">Belum Ada Master Bahan Baku</h3>
+              <p className="text-xs text-zinc-500 max-w-md mx-auto mb-6">
+                Data master bahan baku masih kosong (bersih). Anda dapat menambahkan bahan baku satu per satu atau memuat daftar bahan baku standar D&apos;Besto.
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                <button
+                  onClick={openAddModal}
+                  className="inline-flex items-center gap-2 bg-[#D32323] hover:bg-[#B31818] text-white font-bold text-xs px-5 py-2.5 rounded-full transition shadow-xs cursor-pointer"
+                >
+                  <Plus className="w-4 h-4 stroke-[3]" />
+                  <span>Tambah Bahan Baku Pertama</span>
+                </button>
+                <button
+                  onClick={() => {
+                    seedOfficialMaterials();
+                    setFeedback("Template standar bahan baku resmi D'Besto berhasil dimuat!");
+                    setTimeout(() => setFeedback(null), 3000);
+                  }}
+                  className="inline-flex items-center gap-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-bold text-xs px-5 py-2.5 rounded-full transition cursor-pointer"
+                >
+                  <span>Muat Standar Bahan Baku Resmi</span>
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <h3 className="text-base font-bold text-zinc-800 mb-1">Bahan Baku Tidak Ditemukan</h3>
+              <p className="text-xs text-zinc-500 max-w-md mx-auto mb-4">
+                Tidak ada bahan baku yang cocok dengan kata kunci &quot;{search}&quot;.
+              </p>
+              <button
+                onClick={() => setSearch("")}
+                className="text-xs font-bold text-[#D32323] hover:underline cursor-pointer"
+              >
+                Reset Pencarian
+              </button>
+            </>
+          )}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {filtered.map((mat) => (
+            <div
+              key={mat.id}
+              className="bg-white p-5 rounded-3xl border border-zinc-200 shadow-sm space-y-3 flex flex-col justify-between hover:shadow-md transition"
+            >
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono font-bold text-zinc-600 bg-zinc-100 px-2 py-0.5 rounded">
+                    {mat.code}
+                  </span>
+                  <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">
+                    AKTIF
+                  </span>
+                </div>
+                <h3 className="text-sm font-bold text-zinc-900 leading-snug line-clamp-1">{mat.name}</h3>
+                <p className="text-base font-black text-[#D32323]">
+                  {formatRupiah(mat.standardCost)}{" "}
+                  <span className="text-xs font-normal text-zinc-500">/ {mat.unit}</span>
+                </p>
+                <p className="text-[11px] text-zinc-500 pt-1">
+                  Min. Stock Alert: <strong>{mat.minStockAlert} {mat.unit}</strong>
+                </p>
+              </div>
+
+              <div className="pt-2 border-t border-zinc-100 flex items-center justify-end gap-1.5">
+                <button
+                  onClick={() => openEditModal(mat)}
+                  className="p-1.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 text-zinc-700 transition"
+                  title="Edit Bahan"
+                >
+                  <Edit2 className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  onClick={() => handleDelete(mat)}
+                  className="p-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 transition"
+                  title="Hapus Bahan"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* MODAL TAMBAH / EDIT BAHAN BAKU */}
       {isModalOpen && (

@@ -33,11 +33,20 @@ export function PromoSection() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {promotions.map((promo) => (
-            <div
-              key={promo.id}
-              className="bg-white rounded-3xl border border-zinc-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group"
-            >
+          {promotions.length === 0 ? (
+            <div className="col-span-full py-12 text-center bg-white rounded-3xl border border-dashed border-zinc-200 p-8">
+              <Tag className="w-8 h-8 text-zinc-300 mx-auto mb-2" />
+              <p className="text-base font-bold text-zinc-700">Nantikan Promo Menarik Berikutnya!</p>
+              <p className="text-xs text-zinc-500 mt-1 max-w-sm mx-auto">
+                Saat ini belum ada promo aktif. Pantau terus halaman ini untuk penawaran diskon spesial.
+              </p>
+            </div>
+          ) : (
+            promotions.map((promo) => (
+              <div
+                key={promo.id}
+                className="bg-white rounded-3xl border border-zinc-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group"
+              >
               <div className="relative aspect-[16/9] w-full overflow-hidden bg-zinc-900">
                 <Image
                   src={promo.bannerImage}
@@ -95,7 +104,8 @@ export function PromoSection() {
                 )}
               </div>
             </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </section>

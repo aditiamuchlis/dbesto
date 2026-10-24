@@ -81,19 +81,26 @@ export default function RestoLaporanPage() {
           <span className="text-xs text-zinc-500">Live inventory real-time</span>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {stocks
-            .filter((s) => s.outletId === currentOutlet.id)
-            .map((stk) => (
-              <div key={stk.id} className="p-4 bg-zinc-50 rounded-2xl border border-zinc-200 space-y-1">
-                <span className="text-[10px] font-bold text-zinc-400 font-mono">{stk.materialCode}</span>
-                <h4 className="text-xs font-bold text-zinc-800 leading-snug">{stk.materialName}</h4>
-                <p className="text-lg font-black text-zinc-900 pt-1">
-                  {stk.currentStock} <span className="text-xs font-normal text-zinc-500">{stk.unit}</span>
-                </p>
-              </div>
-            ))}
-        </div>
+        {stocks.filter((s) => s.outletId === currentOutlet.id).length === 0 ? (
+          <div className="p-8 text-center text-zinc-400 bg-zinc-50 rounded-2xl border border-dashed border-zinc-200">
+            <p className="font-semibold text-zinc-600 text-xs">Belum ada data stok bahan baku untuk cabang ini</p>
+            <p className="text-[11px] text-zinc-400 mt-1">Stok bahan baku akan muncul setelah didaftarkan oleh Pusat atau melalui proses PO & Stock Opname.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {stocks
+              .filter((s) => s.outletId === currentOutlet.id)
+              .map((stk) => (
+                <div key={stk.id} className="p-4 bg-zinc-50 rounded-2xl border border-zinc-200 space-y-1">
+                  <span className="text-[10px] font-bold text-zinc-400 font-mono">{stk.materialCode}</span>
+                  <h4 className="text-xs font-bold text-zinc-800 leading-snug">{stk.materialName}</h4>
+                  <p className="text-lg font-black text-zinc-900 pt-1">
+                    {stk.currentStock} <span className="text-xs font-normal text-zinc-500">{stk.unit}</span>
+                  </p>
+                </div>
+              ))}
+          </div>
+        )}
       </div>
     </div>
   );

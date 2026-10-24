@@ -15,38 +15,13 @@ export default function BeritaPage() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [search, setSearch] = useState("");
 
-  const extraArticles = [
-    {
-      id: "art-03",
-      title: "Ekspansi 2026: D'Besto Resmikan 50 Cabang Baru di Jawa & Sumatera",
-      slug: "ekspansi-2026-50-cabang-baru",
-      summary: "Memperluas jangkauan layanan kuliner terjangkau dan berkualitas ke kota-kota lapis kedua dan ketiga di Indonesia.",
-      content: "Sebagai wujud komitmen menghadirkan sajian ayam krispi halal terbaik untuk seluruh lapisan masyarakat, D'Besto menargetkan pembukaan 50 cabang resto baru sepanjang tahun 2026...",
-      coverImage: "/images/hero/hero-food-clean.png",
-      isPublished: true,
-      publishedAt: "2026-10-05T08:00:00Z",
-    },
-    {
-      id: "art-04",
-      title: "Tips Memilih Olahan Ayam Goreng Krispi yang Sehat & Aman untuk Anak",
-      slug: "tips-memilih-ayam-goreng-sehat",
-      summary: "Ketahui standar keamanan pangan, penggantian minyak berkala, dan daging ayam tanpa hormon pengawet.",
-      content: "Banyak orang tua khawatir dengan kualitas makanan cepat saji untuk si kecil. D'Besto membagikan panduan memilih olahan ayam higienis dengan standar SOP penggantian minyak nabati setiap hari...",
-      coverImage: "/images/menu/fried-chicken.jpg",
-      isPublished: true,
-      publishedAt: "2026-09-28T11:00:00Z",
-    },
-  ];
-
-  const allArticles = [...articles, ...extraArticles];
-
-  const filtered = allArticles.filter(
+  const filtered = articles.filter(
     (a) =>
       a.title.toLowerCase().includes(search.toLowerCase()) ||
       a.summary.toLowerCase().includes(search.toLowerCase())
   );
 
-  const featured = allArticles[0];
+  const featured = articles[0];
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FDFBF7]">
@@ -96,8 +71,20 @@ export default function BeritaPage() {
       </section>
 
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full space-y-12">
-        {/* Featured Article Card */}
-        {featured && !search && (
+        {articles.length === 0 ? (
+          <div className="bg-white rounded-3xl p-12 text-center border border-zinc-200 space-y-4 max-w-md mx-auto my-8">
+            <div className="w-16 h-16 bg-red-50 text-[#D32323] rounded-full flex items-center justify-center mx-auto">
+              <Newspaper className="w-8 h-8 text-[#D32323]" />
+            </div>
+            <h3 className="text-lg font-bold text-zinc-900">Belum Ada Artikel Berita</h3>
+            <p className="text-xs text-zinc-500">
+              Kabar terkini dan artikel informatif seputar D&apos;Besto akan segera dipublikasikan.
+            </p>
+          </div>
+        ) : (
+          <>
+            {/* Featured Article Card */}
+            {featured && !search && (
           <div className="bg-white rounded-3xl border border-zinc-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 grid grid-cols-1 lg:grid-cols-12 gap-0 group">
             <div className="lg:col-span-7 relative aspect-[16/10] lg:aspect-auto bg-zinc-100 overflow-hidden">
               <Image
@@ -199,6 +186,8 @@ export default function BeritaPage() {
             ))}
           </div>
         </div>
+        </>
+        )}
       </main>
 
       <Footer />

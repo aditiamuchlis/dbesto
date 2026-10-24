@@ -131,8 +131,16 @@ export default function StockOpnamePage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100">
-              {calculatedItems.map((item) => (
-                <tr key={item.materialId} className="hover:bg-zinc-50/70">
+              {calculatedItems.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="p-10 text-center text-zinc-400">
+                    <p className="font-bold text-sm text-zinc-600 mb-1">Belum Ada Bahan Baku di Cabang Ini</p>
+                    <p className="text-xs">Stok bahan baku belum terdaftar atau belum dilakukan pengadaan.</p>
+                  </td>
+                </tr>
+              ) : (
+                calculatedItems.map((item) => (
+                  <tr key={item.materialId} className="hover:bg-zinc-50/70">
                   <td className="p-3.5 font-bold text-zinc-900">{item.materialName}</td>
                   <td className="p-3.5 font-mono text-zinc-500">{item.unit}</td>
                   <td className="p-3.5 text-center font-bold text-zinc-700">{item.systemStock}</td>
@@ -178,7 +186,8 @@ export default function StockOpnamePage() {
                     </select>
                   </td>
                 </tr>
-              ))}
+                ))
+              )}
             </tbody>
           </table>
         </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Truck, Plus, CheckCircle2, Clock, PackageCheck, AlertCircle } from "lucide-react";
@@ -18,12 +18,17 @@ export default function PoBahanBakuPage() {
     updatePoStatus,
   } = useAppStore();
 
-  const [orderItems, setOrderItems] = useState<{ materialId: string; orderedQty: number }[]>([
-    { materialId: rawMaterials[0].id, orderedQty: 50 },
-  ]);
+  const [orderItems, setOrderItems] = useState<{ materialId: string; orderedQty: number }[]>([]);
   const [deliveryDate, setDeliveryDate] = useState("");
   const [poNotes, setPoNotes] = useState("");
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+
+  // Sync initial row when rawMaterials are available
+  useEffect(() => {
+    if (orderItems.length === 0 && rawMaterials.length > 0) {
+      setOrderItems([{ materialId: rawMaterials[0].id, orderedQty: 20 }]);
+    }
+  }, [rawMaterials]);
 
   // Goods receipt modal state
   const [receivingPo, setReceivingPo] = useState<PurchaseOrder | null>(null);
@@ -33,6 +38,7 @@ export default function PoBahanBakuPage() {
   const outletPos = purchaseOrders.filter((po) => po.outletId === currentOutlet.id);
 
   const addItemRow = () => {
+    if (rawMaterials.length === 0) return;
     setOrderItems((prev) => [...prev, { materialId: rawMaterials[0].id, orderedQty: 10 }]);
   };
 
@@ -50,11 +56,13 @@ export default function PoBahanBakuPage() {
 
   const handleSubmitPo = (e: React.FormEvent) => {
     e.preventDefault();
-    if (orderItems.length === 0) return;
+    if (orderItems.length === 0 || rawMaterials.length === 0) return;
 
     const newPo = createPurchaseOrder(orderItems, deliveryDate, poNotes || "Pengajuan pasokan mingguan");
     setSuccessMsg(`PO ${newPo.poNumber} berhasil diajukan ke Gudang Pusat!`);
-    setOrderItems([{ materialId: rawMaterials[0].id, orderedQty: 20 }]);
+    if (rawMaterials.length > 0) {
+      setOrderItems([{ materialId: rawMaterials[0].id, orderedQty: 20 }]);
+    }
     setTimeout(() => setSuccessMsg(null), 4000);
   };
 
@@ -111,25 +119,40 @@ export default function PoBahanBakuPage() {
         </div>
 
         <div className="p-5 space-y-4">
-          <div className="space-y-3">
-            {orderItems.map((item, idx) => {
-              const selectedMat = rawMaterials.find((m) => m.id === item.materialId);
-              return (
-                <div key={idx} className="flex flex-wrap items-center gap-3 p-3 bg-zinc-50 rounded-2xl border border-zinc-200">
-                  <div className="flex-1 min-w-[240px]">
-                    <label className="text-[11px] font-bold text-zinc-500 block mb-1">Bahan Baku:</label>
-                    <select
-                      value={item.materialId}
-                      onChange={(e) => handleItemChange(idx, "materialId", e.target.value)}
-                      className="w-full text-xs font-bold p-2.5 rounded-xl border border-zinc-300 bg-white"
-                    >
-                      {rawMaterials.map((m) => (
-                        <option key={m.id} value={m.id}>
-                          {m.name} ({m.unit}) — Acuan {formatRupiah(m.standardCost)}/{m.unit}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+          {rawMaterials.length === 0 ? (
+            <div className="p-8 text-center bg-zinc-50 rounded-2xl border border-dashed border-zinc-200">
+              <AlertCircle className="w-8 h-8 text-amber-500 mx-auto mb-2" />
+              <p className="text-sm font-bold text-zinc-700">Belum Ada Master Bahan Baku</p>
+              <p className="text-xs text-zinc-500 mt-1 max-w-md mx-auto">
+                Master bahan baku belum ditambahkan ke sistem. Super Admin perlu mendaftarkan bahan baku terlebih dahulu di menu Master Bahan Baku.
+              </p>
+              <Link
+                href="/admin/master/bahan-baku"
+                className="inline-block mt-3 text-xs font-bold text-[#D32323] hover:underline"
+              >
+                Ke Master Bahan Baku →
+              </Link>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {orderItems.map((item, idx) => {
+                const selectedMat = rawMaterials.find((m) => m.id === item.materialId);
+                return (
+                  <div key={idx} className="flex flex-wrap items-center gap-3 p-3 bg-zinc-50 rounded-2xl border border-zinc-200">
+                    <div className="flex-1 min-w-[240px]">
+                      <label className="text-[11px] font-bold text-zinc-500 block mb-1">Bahan Baku:</label>
+                      <select
+                        value={item.materialId}
+                        onChange={(e) => handleItemChange(idx, "materialId", e.target.value)}
+                        className="w-full text-xs font-bold p-2.5 rounded-xl border border-zinc-300 bg-white"
+                      >
+                        {rawMaterials.map((m) => (
+                          <option key={m.id} value={m.id}>
+                            {m.name} ({m.unit}) — Acuan {formatRupiah(m.standardCost)}/{m.unit}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
 
                   <div className="w-32">
                     <label className="text-[11px] font-bold text-zinc-500 block mb-1">
@@ -164,15 +187,18 @@ export default function PoBahanBakuPage() {
               );
             })}
           </div>
+        )}
 
-          <button
-            type="button"
-            onClick={addItemRow}
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#D32323] hover:text-[#B31818] bg-red-50 hover:bg-red-100 px-3.5 py-2 rounded-xl transition cursor-pointer"
-          >
-            <Plus className="w-4 h-4" />
-            <span>+ Tambah Baris Bahan Baku</span>
-          </button>
+          {rawMaterials.length > 0 && (
+            <button
+              type="button"
+              onClick={addItemRow}
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#D32323] hover:text-[#B31818] bg-red-50 hover:bg-red-100 px-3.5 py-2 rounded-xl transition cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              <span>+ Tambah Baris Bahan Baku</span>
+            </button>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-zinc-100">
             <div>
@@ -225,8 +251,15 @@ export default function PoBahanBakuPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100">
-              {outletPos.map((po) => (
-                <tr key={po.id} className="hover:bg-zinc-50/70">
+              {outletPos.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="p-8 text-center text-zinc-400">
+                    Belum ada riwayat pengajuan PO untuk cabang ini.
+                  </td>
+                </tr>
+              ) : (
+                outletPos.map((po) => (
+                  <tr key={po.id} className="hover:bg-zinc-50/70">
                   <td className="p-3.5 font-mono font-bold text-zinc-900">{po.poNumber}</td>
                   <td className="p-3.5">{formatTanggalIndo(po.orderDate, true)}</td>
                   <td className="p-3.5 font-black text-[#D32323]">{formatRupiah(po.totalAmount)}</td>
@@ -274,7 +307,8 @@ export default function PoBahanBakuPage() {
                     )}
                   </td>
                 </tr>
-              ))}
+                ))
+              )}
             </tbody>
           </table>
         </div>

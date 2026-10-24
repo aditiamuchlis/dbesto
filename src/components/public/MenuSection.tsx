@@ -74,13 +74,21 @@ export function MenuSection({ onOpenCart }: MenuSectionProps) {
 
         {/* Product Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
-          {filteredProducts.map((product) => {
-            const isJustAdded = addedId === product.id;
-            return (
-              <div
-                key={product.id}
-                className="group bg-white rounded-2xl border border-zinc-200/80 overflow-hidden shadow-xs hover:shadow-xl hover:border-zinc-300 transition-all duration-300 flex flex-col justify-between"
-              >
+          {filteredProducts.length === 0 ? (
+            <div className="col-span-full py-16 text-center bg-zinc-50 rounded-3xl border border-dashed border-zinc-200 p-8">
+              <p className="text-base font-bold text-zinc-700">Belum Ada Menu Terdaftar</p>
+              <p className="text-xs text-zinc-500 mt-1 max-w-sm mx-auto">
+                Katalog produk menu belum diisi atau sedang dalam pembaruan oleh pihak manajemen.
+              </p>
+            </div>
+          ) : (
+            filteredProducts.map((product) => {
+              const isJustAdded = addedId === product.id;
+              return (
+                <div
+                  key={product.id}
+                  className="group bg-white rounded-2xl border border-zinc-200/80 overflow-hidden shadow-xs hover:shadow-xl hover:border-zinc-300 transition-all duration-300 flex flex-col justify-between"
+                >
                 <div>
                   {/* Image Container with Badges */}
                   <div className="relative w-full aspect-[4/3] bg-zinc-100 overflow-hidden cursor-pointer" onClick={() => setSelectedProduct(product)}>
@@ -163,7 +171,8 @@ export function MenuSection({ onOpenCart }: MenuSectionProps) {
                 </div>
               </div>
             );
-          })}
+          })
+        )}
         </div>
       </div>
 

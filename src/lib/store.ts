@@ -32,26 +32,28 @@ import {
   INITIAL_ATTENDANCES,
   INITIAL_PROMOTIONS,
   INITIAL_ARTICLES,
+  OFFICIAL_DBESTO_SAMPLE_PRODUCTS,
+  OFFICIAL_DBESTO_SAMPLE_MATERIALS,
 } from "./mock-data";
 import { generateInvoiceNumber, generateOpnameNumber, generatePoNumber } from "./formatters";
 import { validateGeofence } from "./geofence";
 
 const STORAGE_KEYS = {
-  OUTLETS: "dbesto_outlets_v1",
-  USERS: "dbesto_users_v1",
-  PRODUCTS: "dbesto_products_v1",
-  MATERIALS: "dbesto_materials_v1",
-  PROMOTIONS: "dbesto_promos_v1",
-  ARTICLES: "dbesto_articles_v1",
-  STOCKS: "dbesto_stocks_v1",
-  SHIFTS: "dbesto_shifts_v1",
-  POS_ORDERS: "dbesto_orders_v1",
-  OPNAMES: "dbesto_opnames_v1",
-  PURCHASE_ORDERS: "dbesto_pos_v1",
-  ATTENDANCES: "dbesto_attendances_v1",
-  CURRENT_USER_ID: "dbesto_curr_user_v1",
-  CURRENT_OUTLET_ID: "dbesto_curr_outlet_v1",
-  CART: "dbesto_cart_v1",
+  OUTLETS: "dbesto_outlets_v2",
+  USERS: "dbesto_users_v2",
+  PRODUCTS: "dbesto_products_v2",
+  MATERIALS: "dbesto_materials_v2",
+  PROMOTIONS: "dbesto_promos_v2",
+  ARTICLES: "dbesto_articles_v2",
+  STOCKS: "dbesto_stocks_v2",
+  SHIFTS: "dbesto_shifts_v2",
+  POS_ORDERS: "dbesto_orders_v2",
+  OPNAMES: "dbesto_opnames_v2",
+  PURCHASE_ORDERS: "dbesto_pos_v2",
+  ATTENDANCES: "dbesto_attendances_v2",
+  CURRENT_USER_ID: "dbesto_curr_user_v2",
+  CURRENT_OUTLET_ID: "dbesto_curr_outlet_v2",
+  CART: "dbesto_cart_v2",
   JWT_TOKEN: "dbesto_jwt_token",
 };
 
@@ -98,6 +100,20 @@ export function useAppStore() {
 
   useEffect(() => {
     setIsClient(true);
+
+    // Otomatis bersihkan cache dummy data lama (v1) dari browser
+    try {
+      if (typeof window !== "undefined") {
+        Object.keys(localStorage).forEach((key) => {
+          if (key.startsWith("dbesto_") && key.includes("_v1")) {
+            localStorage.removeItem(key);
+          }
+        });
+      }
+    } catch (e) {
+      console.warn("Storage cleanup notice:", e);
+    }
+
     setOutlets(getStorage(STORAGE_KEYS.OUTLETS, INITIAL_OUTLETS));
     setUsers(getStorage(STORAGE_KEYS.USERS, INITIAL_USERS));
     setProducts(getStorage(STORAGE_KEYS.PRODUCTS, INITIAL_PRODUCTS));
@@ -279,20 +295,21 @@ export function useAppStore() {
   ): StockOpname => {
     let totalLoss = 0;
     const opnameItems = items.map((it, idx) => {
-      const mat = rawMaterials.find((m) => m.id === it.materialId) || INITIAL_RAW_MATERIALS[0];
+      const mat = rawMaterials.find((m) => m.id === it.materialId);
+      const standardCost = mat ? mat.standardCost : 0;
       const diff = it.physicalStock - it.systemStock;
-      const loss = diff < 0 ? Math.abs(diff) * mat.standardCost : 0;
+      const loss = diff < 0 ? Math.abs(diff) * standardCost : 0;
       totalLoss += loss;
       return {
         id: `oi-${Date.now()}-${idx}`,
         materialId: it.materialId,
-        materialName: mat.name,
-        materialCode: mat.code,
-        unit: mat.unit,
+        materialName: mat ? mat.name : "Bahan Baku",
+        materialCode: mat ? mat.code : "MAT-00",
+        unit: mat ? mat.unit : "unit",
         systemStock: it.systemStock,
         physicalStock: it.physicalStock,
         difference: diff,
-        costPerUnit: mat.standardCost,
+        costPerUnit: standardCost,
         lossValue: loss,
         reason: it.reason || (diff < 0 ? "Selisih susut fisik" : "Sesuai standar"),
       };
@@ -371,17 +388,18 @@ export function useAppStore() {
   ): PurchaseOrder => {
     let total = 0;
     const poItems = items.map((it, idx) => {
-      const mat = rawMaterials.find((m) => m.id === it.materialId) || INITIAL_RAW_MATERIALS[0];
-      const sub = it.orderedQty * mat.standardCost;
+      const mat = rawMaterials.find((m) => m.id === it.materialId);
+      const standardCost = mat ? mat.standardCost : 0;
+      const sub = it.orderedQty * standardCost;
       total += sub;
       return {
         id: `poi-${Date.now()}-${idx}`,
         materialId: it.materialId,
-        materialName: mat.name,
-        materialCode: mat.code,
-        unit: mat.unit,
+        materialName: mat ? mat.name : "Bahan Baku",
+        materialCode: mat ? mat.code : "MAT-00",
+        unit: mat ? mat.unit : "unit",
         orderedQty: it.orderedQty,
-        unitCost: mat.standardCost,
+        unitCost: standardCost,
         subtotal: sub,
       };
     });
@@ -633,6 +651,23 @@ export function useAppStore() {
     const updated = [...rawMaterials, created];
     setRawMaterials(updated);
     setStorage(STORAGE_KEYS.MATERIALS, updated);
+
+    // Otomatis buatkan slot stok 0 di semua cabang aktif
+    const newStocks: OutletMaterialStock[] = outlets.map((o) => ({
+      id: `stk-${o.id}-${created.id}`,
+      outletId: o.id,
+      materialId: created.id,
+      materialName: created.name,
+      materialCode: created.code,
+      unit: created.unit,
+      currentStock: 0,
+      standardCost: created.standardCost,
+      updatedAt: new Date().toISOString(),
+    }));
+    const updatedStocks = [...stocks, ...newStocks];
+    setStocks(updatedStocks);
+    setStorage(STORAGE_KEYS.STOCKS, updatedStocks);
+
     return created;
   };
 
@@ -640,12 +675,34 @@ export function useAppStore() {
     const updated = rawMaterials.map((m) => (m.id === id ? { ...m, ...updates } : m));
     setRawMaterials(updated);
     setStorage(STORAGE_KEYS.MATERIALS, updated);
+
+    // Update info pada stocks
+    setStocks((prev) => {
+      const next = prev.map((s) => {
+        if (s.materialId === id) {
+          return {
+            ...s,
+            materialName: updates.name || s.materialName,
+            materialCode: updates.code || s.materialCode,
+            unit: updates.unit || s.unit,
+            standardCost: updates.standardCost ?? s.standardCost,
+          };
+        }
+        return s;
+      });
+      setStorage(STORAGE_KEYS.STOCKS, next);
+      return next;
+    });
   };
 
   const deleteRawMaterial = (id: string) => {
     const updated = rawMaterials.filter((m) => m.id !== id);
     setRawMaterials(updated);
     setStorage(STORAGE_KEYS.MATERIALS, updated);
+
+    const updatedStocks = stocks.filter((s) => s.materialId !== id);
+    setStocks(updatedStocks);
+    setStorage(STORAGE_KEYS.STOCKS, updatedStocks);
   };
 
   const adjustStock = (stockId: string, newStock: number) => {
@@ -703,6 +760,66 @@ export function useAppStore() {
     const updated = articles.filter((a) => a.id !== id);
     setArticles(updated);
     setStorage(STORAGE_KEYS.ARTICLES, updated);
+  };
+
+  // ==========================================
+  // BERSIHKAN SEMUA DATA DUMMY (CLEAN SLATE 0 DATA)
+  // ==========================================
+  const clearAllDummyData = () => {
+    setProducts([]);
+    setRawMaterials([]);
+    setStocks([]);
+    setShifts([]);
+    setPosOrders([]);
+    setStockOpnames([]);
+    setPurchaseOrders([]);
+    setAttendances([]);
+    setPromotions([]);
+    setArticles([]);
+    setCart([]);
+
+    setStorage(STORAGE_KEYS.PRODUCTS, []);
+    setStorage(STORAGE_KEYS.MATERIALS, []);
+    setStorage(STORAGE_KEYS.STOCKS, []);
+    setStorage(STORAGE_KEYS.SHIFTS, []);
+    setStorage(STORAGE_KEYS.POS_ORDERS, []);
+    setStorage(STORAGE_KEYS.OPNAMES, []);
+    setStorage(STORAGE_KEYS.PURCHASE_ORDERS, []);
+    setStorage(STORAGE_KEYS.ATTENDANCES, []);
+    setStorage(STORAGE_KEYS.PROMOTIONS, []);
+    setStorage(STORAGE_KEYS.ARTICLES, []);
+    setStorage(STORAGE_KEYS.CART, []);
+  };
+
+  // Muat Menu Resmi D'Besto (Opsional / One-click)
+  const seedOfficialMenu = () => {
+    setProducts(OFFICIAL_DBESTO_SAMPLE_PRODUCTS);
+    setStorage(STORAGE_KEYS.PRODUCTS, OFFICIAL_DBESTO_SAMPLE_PRODUCTS);
+  };
+
+  // Muat Bahan Baku Resmi D'Besto (Opsional / One-click)
+  const seedOfficialMaterials = () => {
+    setRawMaterials(OFFICIAL_DBESTO_SAMPLE_MATERIALS);
+    setStorage(STORAGE_KEYS.MATERIALS, OFFICIAL_DBESTO_SAMPLE_MATERIALS);
+
+    const initialStocks: OutletMaterialStock[] = [];
+    outlets.forEach((o) => {
+      OFFICIAL_DBESTO_SAMPLE_MATERIALS.forEach((mat) => {
+        initialStocks.push({
+          id: `stk-${o.id}-${mat.id}`,
+          outletId: o.id,
+          materialId: mat.id,
+          materialName: mat.name,
+          materialCode: mat.code,
+          unit: mat.unit,
+          currentStock: 0,
+          standardCost: mat.standardCost,
+          updatedAt: new Date().toISOString(),
+        });
+      });
+    });
+    setStocks(initialStocks);
+    setStorage(STORAGE_KEYS.STOCKS, initialStocks);
   };
 
   return {
@@ -764,5 +881,9 @@ export function useAppStore() {
     addArticle,
     updateArticle,
     deleteArticle,
+    // Reset & Seed Utilities
+    clearAllDummyData,
+    seedOfficialMenu,
+    seedOfficialMaterials,
   };
 }

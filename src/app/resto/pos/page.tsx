@@ -214,40 +214,56 @@ export default function PosPage() {
 
         {/* Product Cards Grid */}
         <div className="flex-1 overflow-y-auto p-4 grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3.5">
-          {filteredProducts.map((product) => (
-            <div
-              key={product.id}
-              onClick={() => addToCart(product)}
-              className="group bg-white rounded-2xl border border-zinc-200/80 p-2.5 flex flex-col justify-between hover:border-[#D32323] hover:shadow-md transition-all cursor-pointer select-none active:scale-95"
-            >
-              <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-zinc-100 mb-2">
-                <Image
-                  src={product.image || "/images/menu/fried-chicken.jpg"}
-                  alt={product.name}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform"
-                />
-                {product.badge && (
-                  <span className="absolute top-1.5 left-1.5 bg-[#D32323] text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase">
-                    {product.badge}
-                  </span>
-                )}
-              </div>
-              <div>
-                <h4 className="text-xs font-bold text-zinc-900 group-hover:text-[#D32323] transition-colors line-clamp-2 leading-tight">
-                  {product.name}
-                </h4>
-                <div className="mt-2 flex items-center justify-between">
-                  <span className="text-xs font-extrabold text-[#D32323]">
-                    {formatRupiah(product.price)}
-                  </span>
-                  <span className="w-6 h-6 rounded-full bg-red-50 text-[#D32323] flex items-center justify-center font-bold text-xs group-hover:bg-[#D32323] group-hover:text-white transition">
-                    +
-                  </span>
+          {filteredProducts.length === 0 ? (
+            <div className="col-span-full flex flex-col items-center justify-center py-16 text-center text-zinc-400">
+              <AlertCircle className="w-8 h-8 mb-2 text-zinc-300" />
+              <p className="text-xs font-bold text-zinc-600">Belum Ada Menu di Katalog POS</p>
+              <p className="text-[11px] text-zinc-400 max-w-xs mt-1">
+                Produk menu belum ditambahkan. Admin dapat menambahkan produk melalui menu Manajemen Menu di Admin Portal.
+              </p>
+              <Link
+                href="/admin/menu"
+                className="mt-3 text-xs font-bold text-[#D32323] hover:underline"
+              >
+                Ke Master Menu →
+              </Link>
+            </div>
+          ) : (
+            filteredProducts.map((product) => (
+              <div
+                key={product.id}
+                onClick={() => addToCart(product)}
+                className="group bg-white rounded-2xl border border-zinc-200/80 p-2.5 flex flex-col justify-between hover:border-[#D32323] hover:shadow-md transition-all cursor-pointer select-none active:scale-95"
+              >
+                <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-zinc-100 mb-2">
+                  <Image
+                    src={product.image || "/images/menu/fried-chicken.jpg"}
+                    alt={product.name}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform"
+                  />
+                  {product.badge && (
+                    <span className="absolute top-1.5 left-1.5 bg-[#D32323] text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase">
+                      {product.badge}
+                    </span>
+                  )}
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-zinc-900 group-hover:text-[#D32323] transition-colors line-clamp-2 leading-tight">
+                    {product.name}
+                  </h4>
+                  <div className="mt-2 flex items-center justify-between">
+                    <span className="text-xs font-extrabold text-[#D32323]">
+                      {formatRupiah(product.price)}
+                    </span>
+                    <span className="w-6 h-6 rounded-full bg-red-50 text-[#D32323] flex items-center justify-center font-bold text-xs group-hover:bg-[#D32323] group-hover:text-white transition">
+                      +
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
 
